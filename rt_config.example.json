@@ -1,0 +1,8 @@
+{
+  "RT": false,
+  "model_name": "rlc_network_scripting",
+  "host_name": "rtbox-123.local",
+  "method": "XML",
+  "port": 9998,
+  "codegen_path": null
+}
