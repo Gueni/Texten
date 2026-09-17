@@ -1,0 +1,22 @@
+[build-system]
+requires        = ["setuptools==63.2.0", "wheel"]
+build-backend   = "setuptools.build_meta"
+
+[project]
+name            = "PyPLECS"
+version         = "0.0.1"
+description     = "PLECS simulation automation toolkit"
+requires-python = "==3.10.8"
+dynamic         = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies    = {file = ["Script/assets/Configuration/requirements.txt"]}
+
+[tool.setuptools.packages.find]
+where           = ["."]
+include         = ["Script*"]
+
+# Tell pip where to find packages locally
+[tool.pip]
+find-links      = ["wheelhouse"]
+no-index        = true
