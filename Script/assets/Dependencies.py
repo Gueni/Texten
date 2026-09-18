@@ -23,10 +23,7 @@ import  importlib
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 import  numpy                       as        np
 import  scipy                       as        sc
-from    pymoo.core.problem          import    ElementwiseProblem
-from    pymoo.optimize              import    minimize as optmin
-from    pymoo.termination           import    get_termination
-from    pymoo.algorithms.soo.nonconvex.ga import GA
+
 
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 #* DATA & UTILITIES
@@ -65,15 +62,15 @@ from deprecated import deprecated
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 #* INTERNAL    : ASSETS
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-import  assets.Components.Mags_Dicts            as        Mags_Dicts
-import  assets.Components.OpAmps_Dicts          as        OpAmps_Dicts
-import  assets.Components.Sensor_Dicts          as        Sensor_Dicts
-import  assets.Components.Switches_Dicts        as        Switches_Dicts
-import  assets.Components.Fuses_Dicts           as        Fuses_Dicts
-import  assets.Components.Relay_Dicts           as        Relay_Dicts
-import  assets.Components.Battery_Dicts         as        Battery_Dicts
-import  assets.Components.Diodes_Dicts          as        Diodes_Dicts
-import  assets.Components.FerriteBeads_Dicts    as        FerriteBeads_Dicts
+# import  assets.Components.Mags_Dicts            as        Mags_Dicts
+# import  assets.Components.OpAmps_Dicts          as        OpAmps_Dicts
+# import  assets.Components.Sensor_Dicts          as        Sensor_Dicts
+# import  assets.Components.Switches_Dicts        as        Switches_Dicts
+# import  assets.Components.Fuses_Dicts           as        Fuses_Dicts
+# import  assets.Components.Relay_Dicts           as        Relay_Dicts
+# import  assets.Components.Battery_Dicts         as        Battery_Dicts
+# import  assets.Components.Diodes_Dicts          as        Diodes_Dicts
+# import  assets.Components.FerriteBeads_Dicts    as        FerriteBeads_Dicts
 import  assets.Mapping.plecs_mapping            as        pmap
 
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------

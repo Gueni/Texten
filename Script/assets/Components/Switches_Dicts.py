@@ -12,8 +12,10 @@
 #!   Do not modify the values in this file.
 #!----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-import 	assets.Dependencies 		as 		  dp
-import  Lib.Param_Process           as        PM
+import 	copy
+
+import 	numpy 					as	np
+import  Lib.Param_Process		as	PM
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #! 	call the Params-Processing class and point to the location of csv data
@@ -36,14 +38,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'GS6
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -68,7 +70,7 @@ GS66508T			=	{																																	#*	GS66508T parameters
 									'Lg'					:	3.1e-9*0																				,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -94,7 +96,7 @@ GS66508T			=	{																																	#*	GS66508T parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,7.0+0.4,0.4))														,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,7.0+0.4,0.4))														,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -376,14 +378,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'AIM
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -408,7 +410,7 @@ AIMDQ75R060M1H		=	{																																	#*	AIMDQ75R060M1H parameters
 									'Lg'					:	9.52e-9*0																				,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -434,7 +436,7 @@ AIMDQ75R060M1H		=	{																																	#*	AIMDQ75R060M1H parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,21.0,0.35))														,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,21.0,0.35))														,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -716,14 +718,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'AIM
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -748,7 +750,7 @@ AIMDQ75R060M2H		=	{																																	#*	AIMDQ75R060M2H parameters
 									'Lg'					:	9.52e-9*0																				,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -774,7 +776,7 @@ AIMDQ75R060M2H		=	{																																	#*	AIMDQ75R060M2H parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,21.0,0.35))														,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,21.0,0.35))														,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -1056,14 +1058,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'AIM
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -1088,7 +1090,7 @@ AIMDQ75R040M1H		=	{																																	#*	AIMDQ75R040M1H parameters
 									'Lg'					:	9.52e-9*0																				,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -1114,7 +1116,7 @@ AIMDQ75R040M1H		=	{																																	#*	AIMDQ75R040M1H parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,22.0+0.8,0.8))													,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,22.0+0.8,0.8))													,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -1396,14 +1398,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'AIM
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -1428,7 +1430,7 @@ AIMDQ75R040M2H		=	{																																	#*	AIMDQ75R040M2H parameters
 									'Lg'					:	9.52e-9*0																				,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.25																					,	#?	Rdson scaling to account for min, typ and max deviations
@@ -1454,7 +1456,7 @@ AIMDQ75R040M2H		=	{																																	#*	AIMDQ75R040M2H parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,21.0,0.35))														,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,21.0,0.35))														,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -1736,14 +1738,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'SCT
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -1768,7 +1770,7 @@ SCTH35N65G2V		=	{																																	#*	SCTH35N65G2V parameters
 									'Lg'					:	0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -2076,14 +2078,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'SCT
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -2108,7 +2110,7 @@ SCT055HU65G3AG		=	{																																	#*	SCT055HU65G3AG parameters
 									'Lg'					:	0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -2134,7 +2136,7 @@ SCT055HU65G3AG		=	{																																	#*	SCT055HU65G3AG parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(1.1,21.0+0.5,0.5))																					,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(1.1,21.0+0.5,0.5))																					,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -2417,14 +2419,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'IAU
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -2449,7 +2451,7 @@ IAUT300N10S5N015	=	{																																	#*	IAUT300N10S5N015 paramet
 									'Lg'					:	3e-9*0																					,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -2475,7 +2477,7 @@ IAUT300N10S5N015	=	{																																	#*	IAUT300N10S5N015 paramet
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,12.0+0.2,0.2))													,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,12.0+0.2,0.2))													,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -2757,14 +2759,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'NVB
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -2788,7 +2790,7 @@ NVBYST001N08X		=	{																																	#*	NVBYST001N08X parameters
 									'Lg'					:	0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.2143																					,	#?	Rdson scaling to account for min, typ and max deviations
@@ -2814,7 +2816,7 @@ NVBYST001N08X		=	{																																	#*	NVBYST001N08X parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,12.0+0.2,0.2))													,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,12.0+0.2,0.2))													,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -3096,14 +3098,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'NVB
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -3127,7 +3129,7 @@ NVBYST0D8N08X		=	{																																	#*	NVBYST0D8N08X parameters
 									'Lg'					:	0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.194																					,	#?	Rdson scaling to account for min, typ and max deviations
@@ -3153,7 +3155,7 @@ NVBYST0D8N08X		=	{																																	#*	NVBYST0D8N08X parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,12.0+0.2,0.2))													,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,12.0+0.2,0.2))													,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -3435,14 +3437,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'NVM
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -3467,7 +3469,7 @@ NVMJST3D3N08X		=	{																																	#*	NVMJST3D3N08X parameters
 									'Lg'					:	0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.183																					,	#?	Rdson scaling to account for min, typ and max deviations
@@ -3775,14 +3777,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'NVB
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -3807,7 +3809,7 @@ NVBYST0D6N08X		=	{																																	#*	NVBYST0D6N08X parameters
 									'Lg'					:	0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.1429																					,	#?	Rdson scaling to account for min, typ and max deviations
@@ -4115,14 +4117,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'NVM
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -4147,7 +4149,7 @@ NVMJST004N08X		=	{																																	#*	NVMJST004N08X parameters
 									'Lg'					:	0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.156																					,	#?	Rdson scaling to account for min, typ and max deviations
@@ -4455,14 +4457,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'NVB
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -4487,7 +4489,7 @@ NVBLS1D5N10MC		=	{																																	#*	NVBLS1D5N10MC parameters
 									'Lg'					:	0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -4513,7 +4515,7 @@ NVBLS1D5N10MC		=	{																																	#*	NVBLS1D5N10MC parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,12.0+0.4,0.4))													,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,12.0+0.4,0.4))													,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -4795,14 +4797,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'NVB
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -4827,7 +4829,7 @@ NVBLS1D7N10MC		=	{																																	#*	NVBLS1D7N10MC parameters
 									'Lg'					:	0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -4853,7 +4855,7 @@ NVBLS1D7N10MC		=	{																																	#*	NVBLS1D7N10MC parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,12.0+0.4,0.4))													,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,12.0+0.4,0.4))													,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -5135,14 +5137,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'IAU
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -5167,7 +5169,7 @@ IAUT300N08S5N014	=	{																																	#*	IAUT300N08S5N014 paramet
 									'Lg'					:	3e-9*0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -5193,7 +5195,7 @@ IAUT300N08S5N014	=	{																																	#*	IAUT300N08S5N014 paramet
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,12.0+0.4,0.4))													,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,12.0+0.4,0.4))													,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -5475,14 +5477,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'IAU
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -5507,7 +5509,7 @@ IAUT300N08S5N012	=	{																																	#*	IAUT300N08S5N012 paramet
 									'Lg'					:	3e-9*0																					,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -5533,7 +5535,7 @@ IAUT300N08S5N012	=	{																																	#*	IAUT300N08S5N012 paramet
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,12.0+0.4,0.4))													,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,12.0+0.4,0.4))													,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -5815,14 +5817,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'NVB
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -5847,7 +5849,7 @@ NVBLS1D1N08H		=	{																																	#*	NVBLS1D1N08H parameters
 									'Lg'					:	0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -5873,7 +5875,7 @@ NVBLS1D1N08H		=	{																																	#*	NVBLS1D1N08H parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,12.0+0.4,0.4))													,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,12.0+0.4,0.4))													,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -6155,14 +6157,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'FDB
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -6187,7 +6189,7 @@ FDBL86361			=	{																																	#*	FDBL86361 parameters
 									'Lg'					:	0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -6213,7 +6215,7 @@ FDBL86361			=	{																																	#*	FDBL86361 parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,12.0+0.4,0.4))													,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,12.0+0.4,0.4))													,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -6495,14 +6497,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'NVB
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -6527,7 +6529,7 @@ NVBLS1D7N08H		=	{																																	#*	FDBL86361 parameters
 									'Lg'					:	0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -6553,7 +6555,7 @@ NVBLS1D7N08H		=	{																																	#*	FDBL86361 parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,12.0+0.4,0.4))													,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,12.0+0.4,0.4))													,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -6835,14 +6837,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'NVM
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -6867,7 +6869,7 @@ NVMTS0D6N04CL		=	{																																	#*	NVMTS0D6N04CL parameters
 									'Lg'					:	6.23e-9*0																				,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -6893,7 +6895,7 @@ NVMTS0D6N04CL		=	{																																	#*	NVMTS0D6N04CL parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,12.0+0.2,0.2))													,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,12.0+0.2,0.2))													,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -7175,14 +7177,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'NVM
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -7207,7 +7209,7 @@ NVMTS0D6N04C		=	{																																	#*	NVMTS0D6N04C parameters
 									'Lg'					:	6.2322e-9*0																				,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -7233,7 +7235,7 @@ NVMTS0D6N04C		=	{																																	#*	NVMTS0D6N04C parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,12.0+0.2,0.2))													,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,12.0+0.2,0.2))													,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -7515,14 +7517,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'NVM
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -7547,7 +7549,7 @@ NVMFS3D6N10MCL		=	{																																	#*	NVMFS3D6N10MCL parameters
 									'Lg'					:	0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -7573,7 +7575,7 @@ NVMFS3D6N10MCL		=	{																																	#*	NVMFS3D6N10MCL parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,12.0+0.4,0.4))													,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,12.0+0.4,0.4))													,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -7855,14 +7857,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'SQJ
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -7887,7 +7889,7 @@ SQJQ186ER_1			=	{																																	#*	SQJQ186ER parameters
 									'Lg'					:	0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used, 1->typ | 2->max
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -8186,7 +8188,7 @@ SQJQ186ER_1			=	{																																	#*	SQJQ186ER parameters
 							'Tau_deg'						:	100e-9																					,	#?	deglitch filter for currents and voltages
 							'RCsnubber'						:	2																						,	#?	1->enable | 2->disable
 						}
-SQJQ186ER_2 			=	dp.copy.deepcopy(SQJQ186ER_1)
+SQJQ186ER_2 			=	copy.deepcopy(SQJQ186ER_1)
 SQJQ186ER_2['Transistor']['Rg']						=	2
 SQJQ186ER_2['GateDriver']['Voff']					=	0
 SQJQ186ER_2['GateNetwork']['ON_Path']['Rg']			=	1
@@ -8203,14 +8205,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'SQJ
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -8235,7 +8237,7 @@ SQJQ144AER			=	{																																	#*	SQJQ144AER parameters
 									'Lg'					:	0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used, 1->typ | 2->max
 									'RdsonScale'			:	1.0																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -8543,14 +8545,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'NVM
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -8575,7 +8577,7 @@ NVMJST0D7N04XM		=	{																																	#*	NVMJST0D7N04XM parameters
 									'Lg'					:	0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used, 1->typ | 2->max
 									'RdsonScale'			:	1.164																					,	#?	Rdson scaling to account for min, typ and max deviations
@@ -8601,7 +8603,7 @@ NVMJST0D7N04XM		=	{																																	#*	NVMJST0D7N04XM parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,12.0+0.2,0.2))													,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,12.0+0.2,0.2))													,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -8883,14 +8885,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'NVM
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -8915,7 +8917,7 @@ NVMJST0D5N04XM		=	{																																	#*	NVMJST0D5N04XM parameters
 									'Lg'					:	0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used, 1->typ | 2->max
 									'RdsonScale'			:	1.174																					,	#?	Rdson scaling to account for min, typ and max deviations
@@ -9223,14 +9225,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'PMT
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -9255,7 +9257,7 @@ PMT200EPE			=	{																																	#*	PMT200EPE parameters
 									'Lg'					:	1.66871834767356e-9*0																	,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used, 1->typ | 2->max
 									'RdsonScale'			:	1.5																						,	#?	Rdson scaling to account for min, typ and max deviations
@@ -9281,7 +9283,7 @@ PMT200EPE			=	{																																	#*	PMT200EPE parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.linspace(-12,0,int((12/0.3)+1)))												,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.linspace(-12,0,int((12/0.3)+1)))												,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -9563,14 +9565,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'BUK
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -9595,7 +9597,7 @@ BUK9Y6R540H			=	{																																	#*	BUK9Y6R540H parameters
 									'Lg'					:	1.509e-9*0																				,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used, 1->typ | 2->max
 									'RdsonScale'			:	1.607																					,	#?	Rdson scaling to account for min, typ and max deviations
@@ -9621,7 +9623,7 @@ BUK9Y6R540H			=	{																																	#*	BUK9Y6R540H parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,12.0+0.2,0.2))													,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,12.0+0.2,0.2))													,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF
@@ -9903,14 +9905,14 @@ Ciss,Qiss,Eiss,Ciss_tr,Ciss_er 		=	paramProcess.MOSFETcaps(switchesCissPath,'BUK
 Coss_eff 							=	paramProcess.getCmos(Coss,Coss_tr,Coss_er,Coss[0][0],True)
 Ciss_eff 							=	paramProcess.getCmos(Ciss,Ciss_tr,Ciss_er,Ciss[0][0],True)
 Crss_eff 							=	paramProcess.getCmos(Crss,Crss_tr,Crss_er,Crss[0][0],True)
-Cds 						        =	(dp.np.array(Coss[1]) - dp.np.array(Crss[1])).tolist()
-Cgs						        	=	(dp.np.array(Ciss[1]) - dp.np.array(Crss[1])).tolist()
+Cds 						        =	(np.array(Coss[1]) - np.array(Crss[1])).tolist()
+Cgs						        	=	(np.array(Ciss[1]) - np.array(Crss[1])).tolist()
 Cgd						        	=	Crss[1]
-Cds_tr						        =	(dp.np.array(Coss_tr) - dp.np.array(Crss_tr)).tolist()
-Cgs_tr						        =	(dp.np.array(Ciss_tr) - dp.np.array(Crss_tr)).tolist()
+Cds_tr						        =	(np.array(Coss_tr) - np.array(Crss_tr)).tolist()
+Cgs_tr						        =	(np.array(Ciss_tr) - np.array(Crss_tr)).tolist()
 Cgd_tr						        =	Crss_tr
-Cds_er						        =	(dp.np.array(Coss_er) - dp.np.array(Crss_er)).tolist()
-Cgs_er						        =	(dp.np.array(Ciss_er) - dp.np.array(Crss_er)).tolist()
+Cds_er						        =	(np.array(Coss_er) - np.array(Crss_er)).tolist()
+Cgs_er						        =	(np.array(Ciss_er) - np.array(Crss_er)).tolist()
 Cgd_er						        =	Crss_er
 Cds_eff 							=	paramProcess.getCmos([Coss[0],Cds],Cds_tr,Cds_er,Coss[0][0],True)
 Cgs_eff 							=	paramProcess.getCmos([Ciss[0],Cgs],Cgs_tr,Cgs_er,Ciss[0][0],True)
@@ -9935,7 +9937,7 @@ BUK6D3040E			=	{																																	#*	BUK6D3040E parameters
 									'Lg'					:	0																						,	#?	gate pin inductance
 									'Rds_on'            	:   Rvec[-1][-1]*1e-3																		,   #? 	transistor ON resistance
 									'Rds_off'				:	'inf'																					,	#?	transistor OFF resistance
-									'Rvec'					:	(dp.np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
+									'Rvec'					:	(np.array(Rvec)*1e-3).tolist()														,	#?	absolute Rdson vector corresponding to junction temperature
 									'Tvec'					:	Tvec 																					,	#?	junction temperature vector for Rdson
 									'RTconfig'				:	1																						,	#?	choose which RT vector to be used, 1->typ | 2->max
 									'RdsonScale'			:	1.3043																					,	#?	Rdson scaling to account for min, typ and max deviations
@@ -9961,7 +9963,7 @@ BUK6D3040E			=	{																																	#*	BUK6D3040E parameters
 									},
 									'Transfer'		:	{																									#!	transistor forward transfer parameters
 										'Vds'				:	Vds_vec																					,	#?	drain-source voltage vector
-										'Vgs'				:	list(dp.np.arange(0.0,12.0+0.2,0.2))													,	#?	gate-source voltage vector
+										'Vgs'				:	list(np.arange(0.0,12.0+0.2,0.2))													,	#?	gate-source voltage vector
 										'Ids'				:	Ids_vec																					,	#?	drain current vector
 										'Factor_ON'			:	1.0																						,	#?	scaling factor for Ids at turn ON
 										'Factor_OFF'		:	1.0																						,	#?	scaling factor for Ids at turn OFF

@@ -7,7 +7,12 @@
 #?                                  |___/      |_|
 #?
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-import  assets.Dependencies         as        dp
+import numpy as np
+
+from    pymoo.core.problem          import    ElementwiseProblem
+from    pymoo.optimize              import    minimize as optmin
+from    pymoo.termination           import    get_termination
+from    pymoo.algorithms.soo.nonconvex.ga import GA
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Settings
@@ -71,7 +76,7 @@ def loss_combined(params, s, Zt, w_Z, w_Y, w_dB, w_phase, w_rel):
         float: Scalar loss value to be minimized by the optimizer.
     """
 
-    if dp.np.any(params <= 0):
+    if np.any(params <= 0):
         return 1e300
 
     Zm = Z_model(params, s)
@@ -79,30 +84,30 @@ def loss_combined(params, s, Zt, w_Z, w_Y, w_dB, w_phase, w_rel):
 
     # |Z - Zt|^2
     if w_Z > 0:
-        loss += w_Z * dp.np.sum(dp.np.abs(Zm - Zt)**2)
+        loss += w_Z * np.sum(np.abs(Zm - Zt)**2)
 
     # |Y - Yt|^2
     if w_Y > 0:
         Ym = 1/(Zm + EPS_SAFE)
         Yt = 1/(Zt + EPS_SAFE)
-        loss += w_Y * dp.np.sum(dp.np.abs(Ym - Yt)**2)
+        loss += w_Y * np.sum(np.abs(Ym - Yt)**2)
 
     # dB error
     if w_dB > 0:
-        mag_dB_m = 20*dp.np.log10(dp.np.abs(Zm) + EPS_SAFE)
-        mag_dB_t = 20*dp.np.log10(dp.np.abs(Zt) + EPS_SAFE)
-        loss += w_dB * dp.np.sum((mag_dB_m - mag_dB_t)**2)
+        mag_dB_m = 20*np.log10(np.abs(Zm) + EPS_SAFE)
+        mag_dB_t = 20*np.log10(np.abs(Zt) + EPS_SAFE)
+        loss += w_dB * np.sum((mag_dB_m - mag_dB_t)**2)
 
     # phase error (radians)
     if w_phase > 0:
-        ph_m = dp.np.unwrap(dp.np.angle(Zm))
-        ph_t = dp.np.unwrap(dp.np.angle(Zt))
-        loss += w_phase * dp.np.sum((ph_m - ph_t)**2)
+        ph_m = np.unwrap(np.angle(Zm))
+        ph_t = np.unwrap(np.angle(Zt))
+        loss += w_phase * np.sum((ph_m - ph_t)**2)
 
     # relative magnitude
     if w_rel > 0:
-        mag_rel = (dp.np.abs(Zm) - dp.np.abs(Zt)) / (dp.np.abs(Zt) + EPS_SAFE)
-        loss += w_rel * dp.np.sum(mag_rel**2)
+        mag_rel = (np.abs(Zm) - np.abs(Zt)) / (np.abs(Zt) + EPS_SAFE)
+        loss += w_rel * np.sum(mag_rel**2)
 
     return loss
 
@@ -135,8 +140,8 @@ def select_and_decimate(freq, Z, fmin, fmax, n_points=2000):
         raise ValueError("No points in selected frequency range.")
     if len(f) <= n_points:
         return f, z
-    f_new = dp.np.logspace(dp.np.log10(f.min()), dp.np.log10(f.max()), n_points)
-    z_new = dp.np.interp(f_new, f, z.real) + 1j*dp.np.interp(f_new, f, z.imag)
+    f_new = np.logspace(np.log10(f.min()), np.log10(f.max()), n_points)
+    z_new = np.interp(f_new, f, z.real) + 1j*np.interp(f_new, f, z.imag)
     return f_new, z_new
 
 def encode_bounds(space):
@@ -161,12 +166,12 @@ def encode_bounds(space):
     xl, xu = [], []
     for lo, hi, log_scale in space:
         if log_scale:
-            xl.append(dp.np.log10(lo))
-            xu.append(dp.np.log10(hi))
+            xl.append(np.log10(lo))
+            xu.append(np.log10(hi))
         else:
             xl.append(lo)
             xu.append(hi)
-    return dp.np.array(xl), dp.np.array(xu)
+    return np.array(xl), np.array(xu)
 
 def decode_params(x, space):
     """
@@ -190,11 +195,11 @@ def decode_params(x, space):
             vals.append(10**xi)
         else:
             vals.append(xi)
-    p = dp.np.array(vals)
+    p = np.array(vals)
     p[p <= 0] = POS_FLOOR
     return p
 
-class ImpedanceProblem(dp.ElementwiseProblem):
+class ImpedanceProblem(ElementwiseProblem):
     """
     pymoo optimization problem wrapper for impedance model fitting.
 
@@ -246,8 +251,8 @@ def nelder_mead(func, x0, args=(), max_iter=3000, alpha=1.0, gamma=2.0, rho=0.5,
     """
 
     n = len(x0)
-    simplex = dp.np.zeros((n+1, n))
-    x0 = dp.np.maximum(x0, POS_FLOOR)
+    simplex = np.zeros((n+1, n))
+    x0 = np.maximum(x0, POS_FLOOR)
     simplex[0] = x0
 
     for i in range(n):
@@ -255,25 +260,25 @@ def nelder_mead(func, x0, args=(), max_iter=3000, alpha=1.0, gamma=2.0, rho=0.5,
         y[i] = max(y[i]*1.2, POS_FLOOR)
         simplex[i+1] = y
 
-    fvals = dp.np.array([func(simplex[i], *args) for i in range(n+1)])
+    fvals = np.array([func(simplex[i], *args) for i in range(n+1)])
 
     for _ in range(max_iter):
-        idx = dp.np.argsort(fvals)
+        idx = np.argsort(fvals)
         simplex = simplex[idx]
         fvals = fvals[idx]
 
         best = simplex[0]
         worst = simplex[-1]
-        centroid = dp.np.mean(simplex[:-1], axis=0)
+        centroid = np.mean(simplex[:-1], axis=0)
 
-        xr = dp.np.maximum(centroid + alpha*(centroid - worst), POS_FLOOR)
+        xr = np.maximum(centroid + alpha*(centroid - worst), POS_FLOOR)
         fr = func(xr, *args)
 
         if fvals[0] <= fr < fvals[-2]:
             simplex[-1] = xr; fvals[-1] = fr; continue
 
         if fr < fvals[0]:
-            xe = dp.np.maximum(centroid + gamma*(xr - centroid), POS_FLOOR)
+            xe = np.maximum(centroid + gamma*(xr - centroid), POS_FLOOR)
             fe = func(xe, *args)
             if fe < fr:
                 simplex[-1] = xe; fvals[-1] = fe
@@ -281,13 +286,13 @@ def nelder_mead(func, x0, args=(), max_iter=3000, alpha=1.0, gamma=2.0, rho=0.5,
                 simplex[-1] = xr; fvals[-1] = fr
             continue
 
-        xc = dp.np.maximum(centroid + rho*(worst - centroid), POS_FLOOR)
+        xc = np.maximum(centroid + rho*(worst - centroid), POS_FLOOR)
         fc = func(xc, *args)
         if fc < fvals[-1]:
             simplex[-1] = xc; fvals[-1] = fc; continue
 
         for i in range(1, n+1):
-            simplex[i] = dp.np.maximum(best + sigma*(simplex[i] - best), POS_FLOOR)
+            simplex[i] = np.maximum(best + sigma*(simplex[i] - best), POS_FLOOR)
             fvals[i] = func(simplex[i], *args)
 
     return simplex[0], fvals[0]
@@ -309,13 +314,13 @@ def nelder_mead(func, x0, args=(), max_iter=3000, alpha=1.0, gamma=2.0, rho=0.5,
 #         None: Displays two Matplotlib subplots (magnitude and phase).
 #     """
 
-#     s = 1j*2*dp.np.pi*freq
+#     s = 1j*2*np.pi*freq
 #     Z_fit = Z_model(params, s)
 
-#     mag_raw = 20*dp.np.log10(dp.np.abs(Z_raw))
-#     mag_fit = 20*dp.np.log10(dp.np.abs(Z_fit))
-#     ph_raw  = dp.np.angle(Z_raw, deg=True)
-#     ph_fit  = dp.np.angle(Z_fit, deg=True)
+#     mag_raw = 20*np.log10(np.abs(Z_raw))
+#     mag_fit = 20*np.log10(np.abs(Z_fit))
+#     ph_raw  = np.angle(Z_raw, deg=True)
+#     ph_fit  = np.angle(Z_fit, deg=True)
 
 #     fig,(ax1,ax2)=plt.subplots(2,1,figsize=(10,8),sharex=True)
 

@@ -12,8 +12,9 @@
 #!   Do not modify the values in this file.
 #!----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-import 	assets.Dependencies	as	dp
 import  Lib.Param_Process	as	PM
+import numpy 					as	np
+import copy
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #! Call the Post-Processing class and point to the location of csv data
@@ -46,13 +47,13 @@ TDK_A20_Trafo 		=	{																																	#!	TDK A2.0 transformer para
 								'Harmonics'			:	[1]																								,	#!	harmonics order for Fourier decomposition
 								'Temperatures'		:	[25,100]																						,	#!	windings temperature vector for resistance scaling
 								'Rpri'		:	{																											#!	primary windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[0]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.00																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
 							},
 								'Rsec'		:	{																											#!	secondary windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[1]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[1]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[1]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.00																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
@@ -129,13 +130,13 @@ Cyntec_B10_Trafo 	=	{																																	#!	Cyntec B1.0 transformer
 								'Harmonics'			:	[1,3,5,7,9]																						,	#!	harmonics order for Fourier decomposition
 								'Temperatures'		:	[25,100]																						,	#!	windings temperature vector for resistance scaling
 								'Rpri'		:	{																											#!	primary windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[0]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.025																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
 							},
 								'Rsec'		:	{																											#!	secondary windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[1]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[1]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[1]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.0625																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
@@ -212,13 +213,13 @@ Cyntec_B20_Trafo 	=	{																																	#!	Cyntec B2.0 transformer
 								'Harmonics'			:	[1,3,5,7,9]																						,	#!	harmonics order for Fourier decomposition
 								'Temperatures'		:	[25,100]																						,	#!	windings temperature vector for resistance scaling
 								'Rpri'		:	{																											#!	primary windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[0]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.025																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
 							},
 								'Rsec'		:	{																											#!	secondary windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[1]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[1]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[1]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.0625																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
@@ -295,13 +296,13 @@ Cyntec_B21_Trafo 	=	{																																	#!	Cyntec B2.1 transformer
 								'Harmonics'			:	[1,3,5,7,9]																						,	#!	harmonics order for Fourier decomposition
 								'Temperatures'		:	[25,100]																						,	#!	windings temperature vector for resistance scaling
 								'Rpri'		:	{																											#!	primary windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[0]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.025																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
 							},
 								'Rsec'		:	{																											#!	secondary windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[1]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[1]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[1]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.0625																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
@@ -357,7 +358,7 @@ Cyntec_B21_Trafo 	=	{																																	#!	Cyntec B2.1 transformer
 
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Cyntec_C10_Trafo 	=	dp.copy.deepcopy(Cyntec_B21_Trafo)																									#!	Cyntec C1.0 transformer parameters
+Cyntec_C10_Trafo 	=	copy.deepcopy(Cyntec_B21_Trafo)																									#!	Cyntec C1.0 transformer parameters
 
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -382,13 +383,13 @@ Cyntec_C20_Trafo 	=	{																																	#!	Cyntec C2.0 transformer
 								'Harmonics'			:	[1,3,5,7,9]																						,	#!	harmonics order for Fourier decomposition
 								'Temperatures'		:	[25,50,75,100]																					,	#!	windings temperature vector for resistance scaling
 								'Rpri'		:	{																											#!	primary windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[0]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.025																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
 							},
 								'Rsec'		:	{																											#!	secondary windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[1]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[1]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[1]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.0625																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
@@ -468,13 +469,13 @@ Cyntec_EB2_Trafo 	=	{																																	#!	Cyntec B2.1 transformer
 								'Harmonics'			:	[1]																								,	#!	harmonics order for Fourier decomposition
 								'Temperatures'		:	[25,100]																						,	#!	windings temperature vector for resistance scaling
 								'Rpri'		:	{																											#!	primary windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[0]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.025																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
 							},
 								'Rsec'		:	{																											#!	secondary windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[1]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[1]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[1]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.0625																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
@@ -551,13 +552,13 @@ DS_P100076_Trafo 	=	{																																	#!	DS_P100076 transformer 
     							'Harmonics'			:	[1]																								,	#!	harmonics order for Fourier decomposition
 								'Temperatures'		:	[25,100]																						,	#!	windings temperature vector for resistance scaling
 								'Rpri'		:	{																											#!	primary windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[0]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.00																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
 							},
 								'Rsec'		:	{																											#!	secondary windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[1]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[1]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[1]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.00																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
@@ -634,13 +635,13 @@ Gen6WE_A10_Trafo 		=	{																																#!	Gen6WE A1.0 transformer
 								'Harmonics'			:	[1,3,5,7,9]																						,	#!	harmonics order for Fourier decomposition
 								'Temperatures'		:	[25,50,75,100]																					,	#!	windings temperature vector for resistance scaling
 								'Rpri'		:	{																											#!	primary windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[0]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.025																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
 							},
 								'Rsec'		:	{																											#!	secondary windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[1]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[1]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[1]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.0625																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
@@ -722,7 +723,7 @@ TDK_A20_Choke	= 	{																																		#!	TDK A2.0 choke parameters
     							'Harmonics'			:	[0]																								,	#!	harmonics order for Fourier decomposition
 								'Temperatures'		:	[25,100]																						,	#!	windings temperature vector for resistance scaling
 								'Rwind'		:	{																											#!	windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[0]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.00																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
@@ -765,7 +766,7 @@ Sumida_B10_Choke	= 	{																																	#!	Sumida B1.0 choke param
     							'Harmonics'			:	[0,2,4,6,8,10]																					,	#!	harmonics order for Fourier decomposition
 								'Temperatures'		:	[25,100]																						,	#!	windings temperature vector for resistance scaling
 								'Rwind'		:	{																											#!	windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[0]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.0625																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
@@ -808,7 +809,7 @@ Cyntec_B10_Choke	= 	{																																	#!	Cyntec B1.0 choke param
     							'Harmonics'			:	[0,2,4,6,8,10]																					,	#!	harmonics order for Fourier decomposition
 								'Temperatures'		:	[25,100]																						,	#!	windings temperature vector for resistance scaling
 								'Rwind'		:	{																											#!	windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[0]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.0625																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
@@ -851,7 +852,7 @@ Cyntec_B20_Choke	= 	{																																	#!	Cyntec B2.0 choke param
     							'Harmonics'			:	[0,2,4,6,8,10]																					,	#!	harmonics order for Fourier decomposition
 								'Temperatures'		:	[25,100]																						,	#!	windings temperature vector for resistance scaling
 								'Rwind'		:	{																											#!	windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[0]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.20																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
@@ -894,7 +895,7 @@ Cyntec_B21_Choke	= 	{																																	#!	Cyntec B2.1 choke param
     							'Harmonics'			:	[0,2,4,6,8,10]																					,	#!	harmonics order for Fourier decomposition
 								'Temperatures'		:	[25,100]																						,	#!	windings temperature vector for resistance scaling
 								'Rwind'		:	{																											#!	windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[0]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.20																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
@@ -915,7 +916,7 @@ Cyntec_B21_Choke	= 	{																																	#!	Cyntec B2.1 choke param
 
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Cyntec_C10_Choke 	=	dp.copy.deepcopy(Cyntec_B21_Choke)																									#!	Cyntec C1.0 choke parameters
+Cyntec_C10_Choke 	=	copy.deepcopy(Cyntec_B21_Choke)																									#!	Cyntec C1.0 choke parameters
 
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -941,7 +942,7 @@ Cyntec_C20_Choke	= 	{																																	#!	Cyntec C2.0 choke param
     							'Harmonics'			:	[0,2,4,6,8,10]																					,	#!	harmonics order for Fourier decomposition
 								'Temperatures'		:	[25,50,75,100]																					,	#!	windings temperature vector for resistance scaling
 								'Rwind'		:	{																											#!	windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[0]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.20																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
@@ -987,7 +988,7 @@ Cyntec_EB2_Choke	= 	{																																	#!	Cyntec B2.0 choke param
     							'Harmonics'			:	[0,2,4,6,8,10]																					,	#!	harmonics order for Fourier decomposition
 								'Temperatures'		:	[25,100]																						,	#!	windings temperature vector for resistance scaling
 								'Rwind'		:	{																											#!	windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[0]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.2093																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
@@ -1030,7 +1031,7 @@ Gen6WE_A10_Choke	= 	{																																	#!	Gen6WE A1.0 choke param
     							'Harmonics'			:	[0,2,4,6,8,10]																					,	#!	harmonics order for Fourier decomposition
 								'Temperatures'		:	[25,50,75,100]																					,	#!	windings temperature vector for resistance scaling
 								'Rwind'		:	{																											#!	windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[0]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.20																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
@@ -1076,7 +1077,7 @@ Fastron_1R8			= 	{																																	#!	Fastron_1R8 choke paramete
     							'Harmonics'			:	[0,2,4,6,8,10]																					,	#!	harmonics order for Fourier decomposition
 								'Temperatures'		:	[25,100]																						,	#!	windings temperature vector for resistance scaling
 								'Rwind'		:	{																											#!	windings parameters
-									'Rvec'			:	(dp.np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
+									'Rvec'			:	(np.array(Rvec[0]).T).tolist()																,	#?	resistance spectrum vector
                                     'Fvec'			:	Fvec[0]																							,	#?	frequency spectrum vector
 									'Rscale'		:	1.00																							,	#?	scaling between typ and max
 									'Temp'			:	100																									#?	constant operating temperature
