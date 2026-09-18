@@ -7,6 +7,9 @@
 #?                                                                          |_|  |_/_/   \_\___|_| \_|
 #?
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+import os
+import sys
+
 import  assets.Dependencies     as  dp
 import  assets.Configuration.ScriptBody          as  ScriptBody
 import  Lib.error_handler       as  er
@@ -40,7 +43,7 @@ def main():
     # and skip the rest of main() entirely. 
     if (rt_box := RT_Box.from_config(dp.json_path)).enabled : rt_box.run(); return
 
-    dp.script_path  =   dp.os.path.abspath(__file__)
+    dp.script_path  =   os.path.abspath(__file__)
 
     # Create script runner instance and initialize simulation
     RunScript       = run.runScripts(dp.JSON)
@@ -50,7 +53,7 @@ def main():
         RunScript.simInit()
     except:
         RunScript.simEnd()
-        dp.sys.exit(-1)
+        sys.exit(-1)
     dp.flag = False
 
     # Setup callback function for trace holding based on JSON configuration

@@ -82,8 +82,8 @@ import  assets.Mapping.plecs_mapping            as        pmap
 #?
 #?
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-JSON                                    =   json.loads(pathlib.Path(r"Script\assets\Configuration\Input_vars.json").read_text(encoding="utf-8"))        #?
+json_path                               =   pathlib.Path(r"Script\assets\Configuration\Input_vars.json")                                                     #?
+JSON                                    =   json.loads(json_path.read_text(encoding="utf-8"))                                                           #?
 if (not JSON.get("params"))             :   paramdict_to_use    =   "assets.Parameters.Param_Dicts"                                                     #? Default to "Param_Dicts"
 else                                    :   paramdict_to_use    =   "assets.Parameters." + JSON.get("params")                                           #?
 try                                     :   Param_Dicts         =   importlib.import_module(paramdict_to_use)                                           #?
