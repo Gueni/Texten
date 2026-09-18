@@ -7,11 +7,20 @@
 #?                                           |_|    |_| |_|   |_____|_____/____|____/      |_| /_/_|    /____|
 #?
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-import assets.Dependencies as dp
+import base64
+import collections
+import copy
+import glob
+import json
+import jsonrpc_requests
+import os
+import time
+import xmlrpc.client
+import  assets.Dependencies         as        dp
 
 #Calling on Enviromment variables
 for key in ["HTTP_PROXY", "HTTPS_PROXY"]:
-    if key in list(dict(dp.os.environ).keys()):dp.os.environ.pop(key)
+    if key in list(dict(os.environ).keys()):os.environ.pop(key)
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 class PlecsRPC:
     def __init__(self,url,port,mdlVars,slvOpts,anlOpts,METHOD="JSON") :
@@ -56,9 +65,9 @@ class PlecsRPC:
         # if multiple instances are required or parallel simulations are needed
         # create a list of dictionaries containing the model variables, solver options, analysis options and name
         # each dictionary corresponds to one instance of the simulation
-        mdl_list        =   [dp.copy.deepcopy(self.mdlVars) for _ in range(instances)]
-        slv_list        =   [dp.copy.deepcopy(self.slvOpts) for _ in range(instances)]
-        anl_list        =   [dp.copy.deepcopy(self.anlOpts) for _ in range(instances)]
+        mdl_list        =   [copy.deepcopy(self.mdlVars) for _ in range(instances)]
+        slv_list        =   [copy.deepcopy(self.slvOpts) for _ in range(instances)]
+        anl_list        =   [copy.deepcopy(self.anlOpts) for _ in range(instances)]
         nms_list        =   ["Iter_"+str(iteration_range[i]+1) for i in range(len(iteration_range))]
         self.OptStruct  =   [{'ModelVars':mdl_list[x],'SolverOpts':slv_list[x],'AnalysisOpts':anl_list[x], 'Name':nms_list[x]} for x in range(instances)]
 
@@ -85,12 +94,12 @@ class PlecsRPC:
         if self.METHOD == "JSON":
             #? Will be removed once python version upgraded above 3.10.8
             for _name in ("Mapping", "MutableMapping", "Callable", "Iterable","Iterator", "Sequence", "MutableSequence", "Set"):
-                if not hasattr(dp.collections, _name): setattr(dp.collections, _name, getattr(dp.collections.abc, _name))
+                if not hasattr(collections, _name): setattr(collections, _name, getattr(collections.abc, _name))
 
-            self.server  = dp.jsonrpc_requests.Server(url + ":" + port)
+            self.server  = jsonrpc_requests.Server(url + ":" + port)
 
         elif self.METHOD == "XML":
-            self.server  = dp.xmlrpc.client.Server(url + ":" + port)
+            self.server  = xmlrpc.client.Server(url + ":" + port)
 
     def Open_Model(self, modelname):
         """
@@ -103,7 +112,7 @@ class PlecsRPC:
         """
 
         # get pyplecs root directory
-        root_dir            = dp.os.getcwd()
+        root_dir            = os.getcwd()
 
         # folders to exclude from top-level folders parsing
         excluded_folders    = ["Script","Thermal Models","MyLibraries","FMU","wheelhouse","venv","build","PyPLECS.egg-info"]
@@ -111,26 +120,26 @@ class PlecsRPC:
         # Build allowed top-level paths with root project level folder included
         allowed_dirs        = [
                                 # crawl project directory and list sub directories
-                                dp.os.path.join(root_dir, d) for d in dp.os.listdir(root_dir)
+                                os.path.join(root_dir, d) for d in os.listdir(root_dir)
                                 # with the condition that it is an actual folder not a file and is not from the excluded folders
-                                if dp.os.path.isdir(dp.os.path.join(root_dir, d)) and d not in excluded_folders
+                                if os.path.isdir(os.path.join(root_dir, d)) and d not in excluded_folders
                                 # add pyplecs root dir in case a loose model is added there
                                 ] + [root_dir]
 
         # Flatten all matches into one list
-        all_matches         = sum((dp.glob.glob(p, recursive=True) for p in [dp.os.path.join(d, "**", "*.plecs") for d in allowed_dirs]), [])
+        all_matches         = sum((glob.glob(p, recursive=True) for p in [os.path.join(d, "**", "*.plecs") for d in allowed_dirs]), [])
 
         # Case-insensitive filter to find matches
-        model_path          = next((p for p in all_matches if dp.os.path.basename(p).lower() == modelname.lower()),None)
+        model_path          = next((p for p in all_matches if os.path.basename(p).lower() == modelname.lower()),None)
 
         if model_path:
             self.path       = model_path
             dp.cp_mdl       = model_path
-            dp.os.startfile(model_path)
+            os.startfile(model_path)
             dp.scopes       = self.PlecsScopes(self.path)
         else:
             print("Check the model name please.")
-            dp.os._exit(0)
+            os._exit(0)
 
     def LoadModel(self,path):
         """
@@ -145,7 +154,7 @@ class PlecsRPC:
 
         # get the file extension of the path
         # if the path is valid and refers to a plecs file load it over the xmlrpc server otherwise print an error message
-        ext = dp.os.path.splitext(path)[-1].lower()
+        ext = os.path.splitext(path)[-1].lower()
         if (path is not None) and (ext == ".plecs"):
             try :
                 self.server.plecs.load(path)
@@ -169,7 +178,7 @@ class PlecsRPC:
         # if only one instance is required and parallel simulations are not needed
         # launch the simulation without a callback function
         # otherwise, launch the simulation with a callback function
-        SIM_NAME     =  dp.os.path.split(path)
+        SIM_NAME     =  os.path.split(path)
         modelname    =  (list(SIM_NAME)[-1]).split('.')[0]
 
         if (instances == 1 and not parallel)    :   results =   self.server.plecs.simulate(modelname,self.OptStruct)
@@ -194,7 +203,7 @@ class PlecsRPC:
         # and if only one instance is required and parallel simulations are not needed
         # launch the analysis without a callback function
         # otherwise, launch the analysis with a callback function
-        SIM_NAME     =  dp.os.path.split(path)
+        SIM_NAME     =  os.path.split(path)
         modelname    =  (list(SIM_NAME)[-1]).split('.')[0]
 
         if (instances == 1 and not parallel)    :   results =   self.server.plecs.analyze(modelname,analysisName,self.OptStruct)
@@ -320,7 +329,7 @@ class PlecsRPC:
         # Load the PLECS model for simulation
         # Include a brief delay to ensure proper initialization before connecting
         self.optStruct(maxThreads,iteration_range,parallel)
-        dp.time.sleep(5)
+        time.sleep(5)
         self.PlecsConnect()
         self.LoadModel(self.path)
 
@@ -345,7 +354,7 @@ class PlecsRPC:
         elif dp.JSON["scopes"] == [] :
 
             # get plecs model tree
-            tree    = dp.json.loads(dp.base64.b64decode(self.server.plecs.getModelTree(model_path)).decode('utf-8'))
+            tree    = json.loads(base64.b64decode(self.server.plecs.getModelTree(model_path)).decode('utf-8'))
 
             # List to store the full paths of all scopes
             scopes  = []

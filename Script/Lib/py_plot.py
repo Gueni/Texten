@@ -7,7 +7,19 @@
 #?                                                               |_|    \__, |___|_|   |_|\___/ \__|
 #?                                                                      |___/_____|
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-import assets.Dependencies as dp
+import itertools
+import json
+from plotly.subplots import make_subplots
+import natsort
+import numpy as np
+import os
+import pathlib
+import pandas as pd
+import plotly
+import re
+import socket
+import webbrowser
+import  assets.Dependencies         as        dp
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 class HTML_REPORT:
     def __init__(self,ResultsPath='',utc=''):
@@ -16,7 +28,7 @@ class HTML_REPORT:
         """
         self.ResultsPath                =   ResultsPath                                                                                                                 #? Path to store results
         self.utc                        =   utc                                                                                                                         #? UTC timestamp string
-        self.title                      =   f"{dp.scriptname}_Report_{self.utc}_{str(dp.socket.gethostname())}"                                                        #? HTML page title template
+        self.title                      =   f"{dp.scriptname}_Report_{self.utc}_{str(socket.gethostname())}"                                                        #? HTML page title template
 
         self.tab_val_list               =   []                                                                                                                          #? List for table values
         self.iter_param_key             =   []                                                                                                                          #? List of iteration parameter keys
@@ -95,7 +107,7 @@ class HTML_REPORT:
         flattened_items         = brackets_notation(data_dict)
         parameters              = [item[0] for item in flattened_items]
         values                  = [str(item[1]) for item in flattened_items]
-        table                   = dp.plotly.graph_objects.Table(      header  =   dict(
+        table                   = plotly.graph_objects.Table(      header  =   dict(
                                                                     values      =   ['PARAMETERS', 'VALUE']                    ,
                                                                     fill_color  =   dp.headerColor                           ,
                                                                     align       =   'center'
@@ -136,7 +148,7 @@ class HTML_REPORT:
             dropdown_buttons.append(dict(label=path_label,method="update",args=args))
 
 
-        fig = dp.plotly.graph_objects.Figure(data=[table])
+        fig = plotly.graph_objects.Figure(data=[table])
 
         # Layout with clear section separation
         fig.update_layout(
@@ -174,7 +186,7 @@ class HTML_REPORT:
         """
 
         # Read in the CSV file and create a DataFrame
-        df                      =   dp.pd.read_csv(csv_file)
+        df                      =   pd.read_csv(csv_file)
 
         # Loop through the constant dictionaries and calculate the mean values for each column
         # Append the constant names, values, and units to separate lists
@@ -183,13 +195,13 @@ class HTML_REPORT:
             column_values = column_values.to_numpy()
             column_values = column_values[-50:]
             self.constants_list.append(val[0])
-            self.constants_vals.append(dp.np.mean(column_values).round(2))
+            self.constants_vals.append(np.mean(column_values).round(2))
             self.constants_units.append(val[2])
 
         # Create a Plotly table to display the constants
         # Use alternating row colors for better readability and set header color
         # set table layout and title
-        constants_tab           =   dp.plotly.graph_objects.Table(    header  =   dict(
+        constants_tab           =   plotly.graph_objects.Table(    header  =   dict(
                                                                 values      =   ['PARAMETER','VALUE','UNIT']                                      ,
                                                                 fill_color  =   dp.headerColor                                                  ,
                                                                 font_size   =   12                                                                ,
@@ -203,7 +215,7 @@ class HTML_REPORT:
                                         )
 
         # Create a subplot to hold the table
-        fig = dp.plotly.graph_objects.Figure(data=[constants_tab])
+        fig = plotly.graph_objects.Figure(data=[constants_tab])
 
         # Layout with clear section separation
         fig.update_layout(
@@ -222,7 +234,7 @@ class HTML_REPORT:
         """
         #* Focused parameters values table-------------------------------------
         # Create a Plotly table to display the focused parameters
-        updated_vals_table       =   dp.plotly.graph_objects.Table(    header  =   dict(
+        updated_vals_table       =   plotly.graph_objects.Table(    header  =   dict(
                                                                 values      =   ['FOCUSED PARAMETERS', 'VALUE','UNIT']                      ,
                                                                 fill_color  =   dp.headerColor                                     ,
                                                                 align       =   'center'
@@ -233,7 +245,7 @@ class HTML_REPORT:
                                                             )
                                         )
 
-        fig = dp.plotly.graph_objects.Figure(data=[updated_vals_table])
+        fig = plotly.graph_objects.Figure(data=[updated_vals_table])
 
         # Layout with clear section separation
         fig.update_layout(
@@ -267,23 +279,23 @@ class HTML_REPORT:
         # Genarate dataframe from csv file.
         # Retrieve data index dictionaries from plecs_mapping module.
         # Get keys from previously defined dictionaries (to be used as labels)
-        dff                     = dp.pd.read_csv(csv_file)
+        dff                     = pd.read_csv(csv_file)
         Voltages_labels_dict    = dp.pmap_multi['Peak_Voltages']
         Currents_labels_dict    = dp.pmap_multi['Peak_Currents']
         PWM_labels_dict         = dp.pwm_dict
         voltage_keys            = list(Voltages_labels_dict.keys())
         Current_keys            = list(Currents_labels_dict.keys())
         PWM_keys                = list(PWM_labels_dict.keys())
-        fig                     = dp.make_subplots(specs=[[{"secondary_y": True}]])
+        fig                     = make_subplots(specs=[[{"secondary_y": True}]])
 
         # Create and add Traces for th Current Plots.
-        for each in Current_keys:fig.add_trace(dp.plotly.graph_objects.Scatter(x= dff.iloc[:,0],y= dff.iloc[:,Currents_labels_dict.get(each)],name= each,mode= "lines",line= dict(shape = 'linear', dash = 'dot')),secondary_y=False)
+        for each in Current_keys:fig.add_trace(plotly.graph_objects.Scatter(x= dff.iloc[:,0],y= dff.iloc[:,Currents_labels_dict.get(each)],name= each,mode= "lines",line= dict(shape = 'linear', dash = 'dot')),secondary_y=False)
 
         # Create and add Traces for th Voltage Plots.
-        for each in voltage_keys:fig.add_trace(dp.plotly.graph_objects.Scatter(x= dff.iloc[:,0],y= dff.iloc[:,Voltages_labels_dict.get(each)],name= each,mode= "lines",line= dict(shape = 'linear')),secondary_y=True)
+        for each in voltage_keys:fig.add_trace(plotly.graph_objects.Scatter(x= dff.iloc[:,0],y= dff.iloc[:,Voltages_labels_dict.get(each)],name= each,mode= "lines",line= dict(shape = 'linear')),secondary_y=True)
 
         # Create and add Traces for th PWM Plots.
-        for each in PWM_keys:fig.add_trace(dp.plotly.graph_objects.Scatter(x= dff.iloc[:,0],y= dff.iloc[:,PWM_labels_dict.get(each)],name= each,mode= "lines+markers",line= dict(shape = 'linear', dash = 'dashdot')),secondary_y=True)
+        for each in PWM_keys:fig.add_trace(plotly.graph_objects.Scatter(x= dff.iloc[:,0],y= dff.iloc[:,PWM_labels_dict.get(each)],name= each,mode= "lines+markers",line= dict(shape = 'linear', dash = 'dashdot')),secondary_y=True)
 
         # Define button for showing all plots.
         button_all          = dict(
@@ -363,7 +375,7 @@ class HTML_REPORT:
         fig.update_layout(
             height          =   500,
             margin          =   dict(t=20, l=20, r=20, b=20),
-            updatemenus     =   [dp.plotly.graph_objects.layout.Updatemenu(active  = 0,buttons = [button_all,button_curr,button_volt,button_pwm,button_pwm_volt,button_pwm_curr],direction = 'up',x= 0,xanchor = 'left',y= -0.1,yanchor = 'top')],
+            updatemenus     =   [plotly.graph_objects.layout.Updatemenu(active  = 0,buttons = [button_all,button_curr,button_volt,button_pwm,button_pwm_volt,button_pwm_curr],direction = 'up',x= 0,xanchor = 'left',y= -0.1,yanchor = 'top')],
             xaxis           =   dict(title='Time [ s ]')                            ,
             yaxis           =   dict(side= "left",title= "Current [ A ]",titlefont= dict(color="#1f77b4"),tickfont= dict(color="#1f77b4")),
             yaxis2          =   dict(side="right",title="Voltage [ V ]",titlefont=dict(color="#1f77b4"),tickfont=dict(color="#1f77b4")),
@@ -414,13 +426,13 @@ class HTML_REPORT:
         # Initialize an empty list to hold the figures
         # Read the CSV file into a Pandas DataFrame
         figure_list     = []
-        df              = dp.pd.read_csv(fName)
+        df              = pd.read_csv(fName)
 
         # Loop through the input dictionary and create a subplot for each key
         # Set the titles, axis labels, and other properties of the subplot
         for key, _ in odict.items():
                 titles      = [odict[key][x][1][0] for x in range(len(odict[key]))]
-                fig         = dp.make_subplots(rows=len(odict[key]), cols=1,subplot_titles=titles,shared_xaxes=True,vertical_spacing=0.08)
+                fig         = make_subplots(rows=len(odict[key]), cols=1,subplot_titles=titles,shared_xaxes=True,vertical_spacing=0.08)
 
                 # Loop through the columns specified in the input dictionary and add traces to the subplot
                 for j in range(len(odict[key])):
@@ -430,12 +442,12 @@ class HTML_REPORT:
                         # Handle the case where all Y values are the same
                         # If all Y values are the same, only plot the first and last values
                         if len(set(Y)) == 1:
-                            new_df = dp.pd.DataFrame({'X': [X.iloc[0], X.iloc[-1]], 'Y': [Y.iloc[0], Y.iloc[-1]]})
-                            fig.add_trace(dp.plotly.graph_objects.Scatter(x=new_df['X'], y=new_df['Y'], name=odict[key][j][0][i]), row=j+1, col=1)
+                            new_df = pd.DataFrame({'X': [X.iloc[0], X.iloc[-1]], 'Y': [Y.iloc[0], Y.iloc[-1]]})
+                            fig.add_trace(plotly.graph_objects.Scatter(x=new_df['X'], y=new_df['Y'], name=odict[key][j][0][i]), row=j+1, col=1)
 
                         # Otherwise, plot all the Y values
                         else:
-                            fig.add_trace(dp.plotly.graph_objects.Scatter(x=X, y=Y, name=odict[key][j][0][i]), row=j+1, col=1)
+                            fig.add_trace(plotly.graph_objects.Scatter(x=X, y=Y, name=odict[key][j][0][i]), row=j+1, col=1)
 
                     # Set the y-axis title and other properties for each subplot
                     fig['layout'][f'yaxis{j+1}']['title']= odict[key][j][3][i]
@@ -490,16 +502,16 @@ class HTML_REPORT:
         Returns     :   list     (list) : List of Plotly figure objects
         """
         # Read CSV file and Get signal names (all columns except first)
-        df                           = dp.pd.read_csv(csv_file)
+        df                           = pd.read_csv(csv_file)
         time_col   ,signal_names     = df.columns[0] ,df.columns[1:]
         figures                      = []
         units                        = [dp.unit_map[dp.pattern.search(" ".join(s.split()[-2:])).group().lower()] if dp.pattern.search(" ".join(s.split()[-2:])) else "[-]" for s in signal_names]
 
         # Create individual figure for each signal
         for i, (signal_name, unit) in enumerate(zip(signal_names, units)):
-            fig = dp.plotly.graph_objects.Figure()
-            fig.add_trace(dp.plotly.graph_objects.Scatter(x=df[time_col],y=df[signal_name],mode='lines',showlegend=False,line=dict(color='blue')))
-            fig.update_layout(title=dp.re.sub(r'[^a-zA-Z0-9]', '_', signal_name) ,xaxis_title=time_col,yaxis_title=f"{unit}",template="plotly_white")
+            fig = plotly.graph_objects.Figure()
+            fig.add_trace(plotly.graph_objects.Scatter(x=df[time_col],y=df[signal_name],mode='lines',showlegend=False,line=dict(color='blue')))
+            fig.update_layout(title=re.sub(r'[^a-zA-Z0-9]', '_', signal_name) ,xaxis_title=time_col,yaxis_title=f"{unit}",template="plotly_white")
             figures.append(fig)
 
         return figures
@@ -523,14 +535,14 @@ class HTML_REPORT:
 
         if dp.JSON['FFT'] and dp.standalone_exist and standalone_fft_map_path:
 
-            df          = dp.pd.read_csv(standalone_fft_map_path, header=None,index_col=None)
+            df          = pd.read_csv(standalone_fft_map_path, header=None,index_col=None)
             df.columns  = headers
 
             for col in headers:
-                fig = dp.plotly.graph_objects.Figure()
+                fig = plotly.graph_objects.Figure()
                 y_vals  = df[col].iloc[iteration * len(dp.harmonics): (iteration + 1) * len(dp.harmonics)]
 
-                fig.add_trace(dp.plotly.graph_objects.Bar(
+                fig.add_trace(plotly.graph_objects.Bar(
                                                             x           = dp.harmonics,
                                                             y           = y_vals.values,
                                                             name        = f'{col}',
@@ -554,16 +566,16 @@ class HTML_REPORT:
             # Load current and voltage FFT headers from JSON.
             # Read current and voltage FFT CSV data into pandas DataFrames without headers or index columns.
             # Initialize an empty list to store generated Plotly figures.
-            Current_headers               = dp.json.load(open((dp.os.getcwd()).replace("\\","/") + "/Script/assets/Headers/FFT_Current.json" , 'r'))
-            Voltage_headers               = dp.json.load(open((dp.os.getcwd()).replace("\\","/") + "/Script/assets/Headers/FFT_Voltage.json" , 'r'))
-            dfcurr                        = dp.pd.read_csv(current_fft_csv, header=None,index_col=None)
-            dfvolt                        = dp.pd.read_csv(voltage_fft_csv, header=None,index_col=None)
+            Current_headers               = json.load(open((os.getcwd()).replace("\\","/") + "/Script/assets/Headers/FFT_Current.json" , 'r'))
+            Voltage_headers               = json.load(open((os.getcwd()).replace("\\","/") + "/Script/assets/Headers/FFT_Voltage.json" , 'r'))
+            dfcurr                        = pd.read_csv(current_fft_csv, header=None,index_col=None)
+            dfvolt                        = pd.read_csv(voltage_fft_csv, header=None,index_col=None)
 
             # Loop through each entry in dp.plt_title_list to create subplots.
             for i in range(len(dp.plt_title_list)):
 
                 # Create a Plotly subplot with a secondary y-axis for combined current and voltage plotting.
-                fig                   = dp.make_subplots(rows=1, cols=1,specs=[[{"secondary_y": True}]])
+                fig                   = make_subplots(rows=1, cols=1,specs=[[{"secondary_y": True}]])
 
                 # Determine the indices of current columns to plot from Current_headers based on plt_title_list structure.
                 # Determine the indices of voltage columns to plot from Voltage_headers based on plt_title_list structure.
@@ -579,8 +591,8 @@ class HTML_REPORT:
                 # Current traces are plotted on the primary y-axis, and voltage traces on the secondary y-axis.
                 # The data for each trace is sliced according to the current iteration and harmonics length.
                 # If FFT plotting is disabled, return an empty list immediately.
-                for c, name in enumerate(current_titles):fig.add_trace(dp.plotly.graph_objects.Bar(x=dp.harmonics, y=dfcurr.iloc[iteration * len(dp.harmonics): (iteration + 1) * len(dp.harmonics), current_idx_list[c]], name=name), row=1, col=1,secondary_y=False)
-                for j, name in enumerate(voltage_titles):fig.add_trace(dp.plotly.graph_objects.Bar(x=dp.harmonics, y=dfvolt.iloc[iteration * len(dp.harmonics): (iteration + 1) * len(dp.harmonics), voltage_idx_list[j]], name=name), row=1, col=1,secondary_y=True)
+                for c, name in enumerate(current_titles):fig.add_trace(plotly.graph_objects.Bar(x=dp.harmonics, y=dfcurr.iloc[iteration * len(dp.harmonics): (iteration + 1) * len(dp.harmonics), current_idx_list[c]], name=name), row=1, col=1,secondary_y=False)
+                for j, name in enumerate(voltage_titles):fig.add_trace(plotly.graph_objects.Bar(x=dp.harmonics, y=dfvolt.iloc[iteration * len(dp.harmonics): (iteration + 1) * len(dp.harmonics), voltage_idx_list[j]], name=name), row=1, col=1,secondary_y=True)
 
                 # Update the layout of the FFT figure with a title, axis labels, tick settings, and background color.
                 # The primary y-axis shows current magnitudes and the secondary y-axis shows voltage magnitudes.
@@ -620,18 +632,18 @@ class HTML_REPORT:
                                 opacity (float)         : cuboid opacity. default to 1.
             Return          :   fig     (object)        : plotly figure.
         """
-        fig, ann                = dp.plotly.graph_objects.Figure(), []
-        x_vals                  = dp.np.array(x_vals, dtype=int)
-        y_vals, z_vals          = map(lambda arr: dp.np.array(arr, dtype=float),(y_vals, z_vals))
-        x_unique ,y_unique      = dp.np.unique(x_vals) , dp.np.unique(y_vals)
+        fig, ann                = plotly.graph_objects.Figure(), []
+        x_vals                  = np.array(x_vals, dtype=int)
+        y_vals, z_vals          = map(lambda arr: np.array(arr, dtype=float),(y_vals, z_vals))
+        x_unique ,y_unique      = np.unique(x_vals) , np.unique(y_vals)
 
         # Base spacing between unique points
-        dx_base = dp.np.min(dp.np.diff(x_unique)) if len(x_unique) > 1 else 1.0
-        dy_base = dp.np.min(dp.np.diff(y_unique)) if len(y_unique) > 1 else 1.0
+        dx_base = np.min(np.diff(x_unique)) if len(x_unique) > 1 else 1.0
+        dy_base = np.min(np.diff(y_unique)) if len(y_unique) > 1 else 1.0
 
         # Scale width inversely with the number of unique bars ==> if you have 20 bars, bars will be thinner than if you have 2
         nx, ny = len(x_unique), len(y_unique)
-        scale_factor = 0.6 / dp.np.sqrt(max(nx, ny))
+        scale_factor = 0.6 / np.sqrt(max(nx, ny))
 
         # prevent being too thin
         dx = dx_base * (0.8 * scale_factor + 0.2)
@@ -649,10 +661,10 @@ class HTML_REPORT:
             z               = [0, 0, 0, 0, z_max, z_max, z_max, z_max]
 
             # Visible bar
-            fig.add_trace(dp.plotly.graph_objects.Mesh3d(x=x, y=y, z=z,alphahull=0,color="royalblue",showscale=False,opacity=opacity,hoverinfo='none'))
+            fig.add_trace(plotly.graph_objects.Mesh3d(x=x, y=y, z=z,alphahull=0,color="royalblue",showscale=False,opacity=opacity,hoverinfo='none'))
 
             # Transparent hover plane
-            fig.add_trace(dp.plotly.graph_objects.Mesh3d(
+            fig.add_trace(plotly.graph_objects.Mesh3d(
                 x=[x_min, x_max, x_max, x_min],
                 y=[y_min, y_min, y_max, y_max],
                 z=[z_max, z_max, z_max, z_max],
@@ -730,20 +742,20 @@ class HTML_REPORT:
             auto_open       = kwargs.get('auto_open', False)
             labels_dict     = dict(label_dict)
             dict_keys       = list(labels_dict.keys())
-            csv_files       = [f for f in dp.os.listdir(path) if f.endswith('.csv') and not f.endswith('_MAP.csv') and not f.endswith('_Standalone.csv')]
+            csv_files       = [f for f in os.listdir(path) if f.endswith('.csv') and not f.endswith('_MAP.csv') and not f.endswith('_Standalone.csv')]
 
             if len(csv_files) >= 1:
 
-                csv_files   = dp.natsort.natsorted(csv_files)
-                dfs         = [dp.pd.read_csv(dp.os.path.join(path, f)) for f in csv_files]
+                csv_files   = natsort.natsorted(csv_files)
+                dfs         = [pd.read_csv(os.path.join(path, f)) for f in csv_files]
                 fig_list    = []
 
                 for each in dict_keys:
 
-                    fig = dp.make_subplots()
+                    fig = make_subplots()
                     for C, df in enumerate(dfs, 1):
                         fig.add_trace(
-                            dp.plotly.graph_objects.Scatter(
+                            plotly.graph_objects.Scatter(
                                             x       =   df.iloc[:, 0]                           ,
                                             y       =   df.iloc[:, labels_dict.get(each)]       ,
                                             # name    =   str("Iter :" + str(C) + " | ") + each   ,
@@ -793,20 +805,20 @@ class HTML_REPORT:
             auto_open       = kwargs.get('auto_open', False)
 
             if dp.JSON["model"] :
-                headers_path    = (dp.os.getcwd()).replace("\\", "/") + f"/Script/assets/Headers/{FFT_file}"
-                headers         = dp.json.load(open(headers_path, 'r'))
+                headers_path    = (os.getcwd()).replace("\\", "/") + f"/Script/assets/Headers/{FFT_file}"
+                headers         = json.load(open(headers_path, 'r'))
 
             else :
                 headers = dp.std_headers[1:]
 
-            df              = dp.pd.read_csv(csv_path, header=None, index_col=None)
+            df              = pd.read_csv(csv_path, header=None, index_col=None)
             num_iterations  = df.shape[0] // len(dp.harmonics)
             figure_list     = []
 
             # Generate figures for each column
             for column in range(df.shape[1]):
 
-                fig = dp.plotly.graph_objects.Figure()
+                fig = plotly.graph_objects.Figure()
 
                 for iteration in range(num_iterations):
                     start_idx       = iteration * len(dp.harmonics)
@@ -814,7 +826,7 @@ class HTML_REPORT:
                     iteration_data  = df.iloc[start_idx:end_idx, column]
 
                     fig.add_trace(
-                                    dp.plotly.graph_objects.Bar(
+                                    plotly.graph_objects.Bar(
                                         x       =   dp.harmonics                                            ,
                                         y       =   iteration_data                                          ,
                                         # name    =   f'{headers[column]} {title} : Iteration {iteration + 1}'
@@ -868,26 +880,26 @@ class HTML_REPORT:
             auto_open   = kwargs.get('auto_open', False)
 
             if len(csv_files) >= 1:
-                dfs     = [dp.pd.read_csv(f) for f in csv_files]
+                dfs     = [pd.read_csv(f) for f in csv_files]
 
                 if dfs:
                     all_columns     = dfs[0].columns.tolist()
                     # Skip the first column (assuming it's time/x-axis)
                     plot_columns    = all_columns[1:] if len(all_columns) > 1 else all_columns
-                    plot_columns    = [dp.re.sub(r'[^a-zA-Z0-9]', '_', each) for each in plot_columns]
+                    plot_columns    = [re.sub(r'[^a-zA-Z0-9]', '_', each) for each in plot_columns]
                     fig_list        = []
 
                     for each in plot_columns:
-                        fig         = dp.make_subplots()
+                        fig         = make_subplots()
                         C=1
                         for df in dfs:
                             # Clean column names
-                            df.columns = [dp.re.sub(r'[^a-zA-Z0-9]', '_', col) for col in df.columns]
+                            df.columns = [re.sub(r'[^a-zA-Z0-9]', '_', col) for col in df.columns]
                             signal_units = [dp.unit_map[dp.pattern.search(" ".join(s.split()[-2:])).group().lower()] if dp.pattern.search(" ".join(s.split()[-2:])) else "[-]" for s in df.columns.values]
                             # Find which column index 'each' corresponds to in the current dataframe
                             col_idx      = df.columns.get_loc(each) if each in df.columns else 1
                             fig.add_trace(
-                                    dp.plotly.graph_objects.Scatter(
+                                    plotly.graph_objects.Scatter(
                                                     x       =   df.iloc[:, 0]                           ,
                                                     y       =   df[each]                                ,
                                                     # name    =   str("Iter :" + str(C) + " | ") + each   ,
@@ -927,7 +939,7 @@ class HTML_REPORT:
                         file.close()
 
         # If auto_open is enabled, the generated HTML report is automatically opened in the default web browser.
-        if auto_open: dp.webbrowser.open(dp.pathlib.Path(html_path).absolute().as_uri())
+        if auto_open: webbrowser.open(pathlib.Path(html_path).absolute().as_uri())
 
     def format_fixed_title(self,fixed_dict, sweepNames=[]):
         """
@@ -959,7 +971,7 @@ class HTML_REPORT:
 
                 # Set figure height for consistency
                 fig.update_layout(height=720, margin=dict(t=50, b=50, l=50, r=50))
-                fig_html    = dp.plotly.io.to_html(fig, include_plotlyjs='cdn', full_html=False, div_id=f"plot-{i}")
+                fig_html    = plotly.io.to_html(fig, include_plotlyjs='cdn', full_html=False, div_id=f"plot-{i}")
                 plot_items += f'<div class="plot-item">{fig_html}</div>\n'
 
         # Replace plot items
@@ -1039,8 +1051,8 @@ class HTML_REPORT:
             # One figure per category (AVG, RMS, MAX ...) x=iteration y=value
             if base_name in per_signal:
                 for category, data in per_signal[base_name].items():
-                    fig = dp.plotly.graph_objects.Figure()
-                    fig.add_trace(dp.plotly.graph_objects.Scatter(
+                    fig = plotly.graph_objects.Figure()
+                    fig.add_trace(plotly.graph_objects.Scatter(
                                                                     x       = data['x']                ,
                                                                     y       = data['y']                ,
                                                                     mode    = 'markers'                ,
@@ -1061,11 +1073,11 @@ class HTML_REPORT:
 
             # One FFT figure : x=harmonic order, y=magnitude, one trace per iteration
             if base_name in per_signal_fft:
-                fig = dp.plotly.graph_objects.Figure()
+                fig = plotly.graph_objects.Figure()
 
                 for trace in per_signal_fft[base_name]:
 
-                    fig.add_trace(dp.plotly.graph_objects.Bar(
+                    fig.add_trace(plotly.graph_objects.Bar(
                                                                 x    = trace['x']                                   ,
                                                                 y    = trace['y']                                   ,
                                                                 name = trace['name']
@@ -1087,7 +1099,7 @@ class HTML_REPORT:
                 signal_plots.append(fig)
 
             if signal_plots:
-                html_path = dp.os.path.normpath(dp.os.path.join(f"{filelog.resultfolder}/HTML_GRAPHS/",f"HTML_GRAPH_{dp.re.sub(r'[^a-zA-Z0-9]', '_', base_name)}_{self.utc}.html")).replace('\\', '/')
+                html_path = os.path.normpath(os.path.join(f"{filelog.resultfolder}/HTML_GRAPHS/",f"HTML_GRAPH_{re.sub(r'[^a-zA-Z0-9]', '_', base_name)}_{self.utc}.html")).replace('\\', '/')
                 self.write_html_report(html_path, signal_plots)
 
     def graphs_scopes(self, filelog, Xs, MAPS_dir):
@@ -1152,7 +1164,7 @@ class HTML_REPORT:
             #?--------------------------------------------------
             is_permute      = dp.JSON["permute"]
             if is_permute:
-                all_combos  = list(dp.itertools.product(*sweep_vars.values()))
+                all_combos  = list(itertools.product(*sweep_vars.values()))
             else:
                 values_list = list(sweep_vars.values())
                 max_len     = max(len(v) for v in values_list) if values_list else 0
@@ -1208,8 +1220,8 @@ class HTML_REPORT:
                             component_plots.append(fig)
 
                     if component_plots:
-                        safe_name = dp.re.sub(r'[^a-zA-Z0-9]', '_', component)
-                        html_path = dp.os.path.normpath(dp.os.path.join(f"{filelog.resultfolder}/HTML_GRAPHS/", f"HTML_GRAPH_{safe_name}_{self.utc}.html")).replace('\\', '/')
+                        safe_name = re.sub(r'[^a-zA-Z0-9]', '_', component)
+                        html_path = os.path.normpath(os.path.join(f"{filelog.resultfolder}/HTML_GRAPHS/", f"HTML_GRAPH_{safe_name}_{self.utc}.html")).replace('\\', '/')
                         self.write_html_report(html_path, component_plots)
 
             #?------------------------------------------------
@@ -1217,7 +1229,7 @@ class HTML_REPORT:
             #?------------------------------------------------
             if dp.JSON['FFT'] and fft_matrices:
 
-                fft_combos = list(map(tuple, dp.np.repeat(all_combos, len(dp.harmonics), axis=0)))
+                fft_combos = list(map(tuple, np.repeat(all_combos, len(dp.harmonics), axis=0)))
 
                 for matrix_name, (matrix, headers) in fft_matrices.items():
                     if matrix is None or matrix.shape[1] == 0   :   continue
@@ -1257,9 +1269,9 @@ class HTML_REPORT:
                                         if i < len(fixed_tuple) :   fixed_dict[k] = fixed_tuple[i]
 
                                 fixed_title = self.format_fixed_title(fixed_dict, sweep_names) if fixed_dict else ""
-                                fig         = dp.plotly.graph_objects.Figure()
+                                fig         = plotly.graph_objects.Figure()
 
-                                fig.add_trace(dp.plotly.graph_objects.Bar(x = data['x'], y = data['z'], name = component))
+                                fig.add_trace(plotly.graph_objects.Bar(x = data['x'], y = data['z'], name = component))
                                 fig.update_layout(
                                                     title       = dict(text=f"{component}<br>{fixed_title}" if fixed_title else component, x=0.5)   ,
                                                     xaxis_title = 'Harmonic Order'                                                                  ,
@@ -1345,7 +1357,7 @@ class HTML_REPORT:
                                                             title   = f"{component}<br>{fixed_title}" if fixed_title else component                 ,
                                                             z_title = 'Magnitude'                                                                   ,
                                                             x_title = 'Harmonic Order'                                                              ,
-                                                            y_title = sweep_names[int(dp.re.search(r'\d+', x_key).group())-1] if x_key else 'Var1'  ,
+                                                            y_title = sweep_names[int(re.search(r'\d+', x_key).group())-1] if x_key else 'Var1'  ,
                                                             opacity = 0.9
                                                         )
                                     if fig  :   component_plots.append(fig)
@@ -1376,7 +1388,7 @@ class HTML_REPORT:
                                                             title   = f"{component}<br>{fixed_title}" if fixed_title else component                 ,
                                                             z_title = 'Magnitude'                                                                   ,
                                                             x_title = 'Harmonic Order'                                                              ,
-                                                            y_title = sweep_names[int(dp.re.search(r'\d+', y_key).group())-1] if y_key else 'Var2'  ,
+                                                            y_title = sweep_names[int(re.search(r'\d+', y_key).group())-1] if y_key else 'Var2'  ,
                                                             opacity = 0.9
                                                         )
                                     if fig  :   component_plots.append(fig)
@@ -1385,7 +1397,7 @@ class HTML_REPORT:
                         #? Write report
                         #?-------------------------------------------
                         if component_plots:
-                            html_path = dp.os.path.normpath(dp.os.path.join(f"{filelog.resultfolder}/HTML_GRAPHS/",f"HTML_GRAPH_{dp.re.sub(r'[^a-zA-Z0-9]', '_', component)}_{self.utc}.html")).replace('\\', '/')
+                            html_path = os.path.normpath(os.path.join(f"{filelog.resultfolder}/HTML_GRAPHS/",f"HTML_GRAPH_{re.sub(r'[^a-zA-Z0-9]', '_', component)}_{self.utc}.html")).replace('\\', '/')
                             self.write_html_report(html_path, component_plots)
 
     def get_sweep_vars(self,Xs):
@@ -1420,18 +1432,18 @@ class HTML_REPORT:
         Returns:
             _type_: _description_
         """
-        fig         = dp.plotly.graph_objects.Figure()
-        sorted_idx  = dp.np.argsort(data['x'])
+        fig         = plotly.graph_objects.Figure()
+        sorted_idx  = np.argsort(data['x'])
 
-        fig.add_trace(dp.plotly.graph_objects.Scatter(
-                                                        x       =   dp.np.array(data['x'])[sorted_idx]  ,
-                                                        y       =   dp.np.array(data['z'])[sorted_idx]  ,
+        fig.add_trace(plotly.graph_objects.Scatter(
+                                                        x       =   np.array(data['x'])[sorted_idx]  ,
+                                                        y       =   np.array(data['z'])[sorted_idx]  ,
                                                         mode    =   'lines'                             ,
                                                         name    =   component
                                                     ))
         fig.update_layout(
                             title       =   dict(text=title, x=0.5)                                 ,
-                            xaxis_title =   sweep_names[int(dp.re.search(r'\d+', x_key).group())-1] ,
+                            xaxis_title =   sweep_names[int(re.search(r'\d+', x_key).group())-1] ,
                             yaxis_title =   component                                               ,
                             height      =   600                                                     ,
                             margin      =   dict(t=80)
@@ -1456,18 +1468,18 @@ class HTML_REPORT:
         Returns:
             _type_: _description_
         """
-        x_vals  = dp.np.array(data['x'])
-        y_vals  = dp.np.array(data['y'])
-        z_vals  = dp.np.array(data['z'])
-        x_title = sweep_names[int(dp.re.search(r'\d+', x_key).group())-1]
-        y_title = sweep_names[int(dp.re.search(r'\d+', y_key).group())-1]
+        x_vals  = np.array(data['x'])
+        y_vals  = np.array(data['y'])
+        z_vals  = np.array(data['z'])
+        x_title = sweep_names[int(re.search(r'\d+', x_key).group())-1]
+        y_title = sweep_names[int(re.search(r'\d+', y_key).group())-1]
 
         if is_permute:
 
-            x_unique    = dp.np.unique(x_vals)
-            y_unique    = dp.np.unique(y_vals)
-            X, Y        = dp.np.meshgrid(x_unique, y_unique)
-            Z           = dp.np.full_like(X, dp.np.nan, dtype=float)
+            x_unique    = np.unique(x_vals)
+            y_unique    = np.unique(y_vals)
+            X, Y        = np.meshgrid(x_unique, y_unique)
+            Z           = np.full_like(X, np.nan, dtype=float)
 
             # Build index maps for safe indexing
             x_map       = {v: i for i, v in enumerate(x_unique)}
@@ -1476,7 +1488,7 @@ class HTML_REPORT:
             for x, y, z in zip(x_vals, y_vals, z_vals):
                 if x in x_map and y in y_map    :   Z[y_map[y], x_map[x]] = z
 
-            fig = dp.plotly.graph_objects.Figure(data  = [dp.plotly.graph_objects.Surface(
+            fig = plotly.graph_objects.Figure(data  = [plotly.graph_objects.Surface(
                                                                                             x           =   X           ,
                                                                                             y           =   Y           ,
                                                                                             z           =   Z           ,
@@ -1485,7 +1497,7 @@ class HTML_REPORT:
 
         else:
 
-            fig = dp.plotly.graph_objects.Figure(data=[dp.plotly.graph_objects.Scatter3d(
+            fig = plotly.graph_objects.Figure(data=[plotly.graph_objects.Scatter3d(
                                                                                             x       =   x_vals                          ,
                                                                                             y       =   y_vals                          ,
                                                                                             z       =   z_vals                          ,
@@ -1583,7 +1595,7 @@ class HTML_REPORT:
 
         # Get all map files and derive mat_order from natsort — this IS the load order
         signal_headers,fft_headers  = [],[]
-        map_files                   = dp.natsort.natsorted([f for f in dp.os.listdir(csv_maps_dir) if f.endswith('_Map.csv')])
+        map_files                   = natsort.natsorted([f for f in os.listdir(csv_maps_dir) if f.endswith('_Map.csv')])
         mat_order                   = [f.replace('_Map.csv', '') for f in map_files]
         map_types,sens_map_types    = set(),set()
 
@@ -1598,7 +1610,7 @@ class HTML_REPORT:
                 else                        :   map_types.add(clean)
 
             # Get base signal names
-            base_signal_names               =   [dp.re.sub(r'[^a-zA-Z0-9]', '_', n) for n in dp.std_headers[1:]]
+            base_signal_names               =   [re.sub(r'[^a-zA-Z0-9]', '_', n) for n in dp.std_headers[1:]]
             self.entries                    =   self.build_ordered_keys(map_types, sens_map_types, base_signal_names, prefix='Standalone_')
 
         #?------------------------------------------------
@@ -1611,24 +1623,24 @@ class HTML_REPORT:
                 else                        :   map_types.add(name)
 
             # Load headers from JSON files in natsort file order
-            header_path                     =   (dp.os.getcwd()).replace("\\", "/") + "/Script/assets/Headers/"
+            header_path                     =   (os.getcwd()).replace("\\", "/") + "/Script/assets/Headers/"
             mat_name_headers                =   {}
 
             for name in mat_order:
-                json_path   = dp.os.path.join(header_path, f"{name}.json")
+                json_path   = os.path.join(header_path, f"{name}.json")
 
-                if dp.os.path.exists(json_path):
+                if os.path.exists(json_path):
                     with open(json_path, 'r') as f:
-                        headers                 = dp.json.load(f)
+                        headers                 = json.load(f)
                         mat_name_headers[name]  = headers if isinstance(headers, list) else [headers]
 
             # Add sensitivity FFT headers if they exist
             if dp.JSON['FFT'] and dp.JSON["perturbation"] != 0 :
-                sens_fft_path       = dp.os.path.join(header_path, "FFT_Sens.json")
+                sens_fft_path       = os.path.join(header_path, "FFT_Sens.json")
 
-                if dp.os.path.exists(sens_fft_path):
+                if os.path.exists(sens_fft_path):
                     with open(sens_fft_path, 'r') as f:
-                        headers                         = dp.json.load(f)
+                        headers                         = json.load(f)
                         mat_name_headers['FFT_Sens']    = headers if isinstance(headers, list) else [headers]
 
             self.entries    = self.build_ordered_keys(map_types, sens_map_types, base_signal_names=[],prefix='',mat_name_headers=mat_name_headers)
@@ -1654,10 +1666,10 @@ class HTML_REPORT:
 
         signal_matrices,fft_matrices = {},{}
 
-        for csv_key, group in dp.itertools.groupby(self.entries, key=lambda x: x[0]):
+        for csv_key, group in itertools.groupby(self.entries, key=lambda x: x[0]):
 
             headers     = [h for (_, h) in group]
-            matrix      = dp.pd.read_csv(dp.os.path.join(csv_maps_dir, f"{csv_key}_Map.csv"), header=None).values.astype(float)
+            matrix      = pd.read_csv(os.path.join(csv_maps_dir, f"{csv_key}_Map.csv"), header=None).values.astype(float)
 
             if 'FFT' in csv_key :   fft_matrices[csv_key]       = (matrix, headers)
             else                :   signal_matrices[csv_key]    = (matrix, headers)
@@ -1680,12 +1692,12 @@ class HTML_REPORT:
         """
         def minify_css(css):
             # Remove comments, whitespace, etc.
-            css = dp.re.sub(r'/\*.*?\*/', '', css, flags=dp.re.DOTALL)
-            css = dp.re.sub(r'\s+', ' ', css)
-            css = dp.re.sub(r';\s*', ';', css)
-            css = dp.re.sub(r':\s*', ':', css)
-            css = dp.re.sub(r'\s*\{\s*', '{', css)
-            css = dp.re.sub(r'\s*\}\s*', '}', css)
+            css = re.sub(r'/\*.*?\*/', '', css, flags=re.DOTALL)
+            css = re.sub(r'\s+', ' ', css)
+            css = re.sub(r';\s*', ';', css)
+            css = re.sub(r':\s*', ':', css)
+            css = re.sub(r'\s*\{\s*', '{', css)
+            css = re.sub(r'\s*\}\s*', '}', css)
             return css.strip()
 
         if Standalone:
@@ -1702,7 +1714,7 @@ class HTML_REPORT:
 
         # the CSS styling sheet content gets ported in both cases.
         with open(dp.stylesheet, 'r')  as f : css = minify_css(f.read())
-        html_content                        = dp.re.sub(r'<style>.*?</style>'  , f'<style>{css}</style>' , html_content, flags=dp.re.DOTALL)
+        html_content                        = re.sub(r'<style>.*?</style>'  , f'<style>{css}</style>' , html_content, flags=re.DOTALL)
 
         with open(dp.BMW_Base64_Logo, 'r', encoding='utf-8') as logo_file: logo_base64 = logo_file.read().strip()
 
@@ -1820,7 +1832,7 @@ class HTML_REPORT:
         #?----------------------------------------------------------------
         #? If auto_open is True, automatically open the generated HTML file in the default web browser.
         #?----------------------------------------------------------------
-        if auto_open: dp.webbrowser.open(dp.pathlib.Path(filename).absolute().as_uri())
+        if auto_open: webbrowser.open(pathlib.Path(filename).absolute().as_uri())
 
     def auto_plot(self,simutil,fileLog,misc,open=False,iterReport=False):
         """
@@ -1836,8 +1848,8 @@ class HTML_REPORT:
         #? Initialize Variables
         #?----------------------------------------------------------------
         misc.tic()
-        ResDir                  =   (dp.os.getcwd()).replace("\\","/") + "/Script/" + "D".upper() + "ata/Res/"+dp.scriptname+ "_"+self.utc+dp.suffix +"/CSV_TIME_SERIES"
-        MAPS_dir                =   (dp.os.getcwd()).replace("\\","/") + "/Script/" + "D".upper() + "ata/Res/"+dp.scriptname+ "_"+self.utc+dp.suffix +"/CSV_MAPS"
+        ResDir                  =   (os.getcwd()).replace("\\","/") + "/Script/" + "D".upper() + "ata/Res/"+dp.scriptname+ "_"+self.utc+dp.suffix +"/CSV_TIME_SERIES"
+        MAPS_dir                =   (os.getcwd()).replace("\\","/") + "/Script/" + "D".upper() + "ata/Res/"+dp.scriptname+ "_"+self.utc+dp.suffix +"/CSV_MAPS"
         FFT_curr_path           =   MAPS_dir+"/FFT_Current_Map.csv"
         FFT_volt_path           =   MAPS_dir+"/FFT_Voltage_Map.csv"
         file_list               =   fileLog.natsort_files(ResDir)

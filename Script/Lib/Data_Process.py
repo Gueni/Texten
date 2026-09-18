@@ -7,7 +7,15 @@
 #?                               |____/_/   \_\_/_/   \_\ |_|   |_| \_\\___/ \____|_____|____/____/___|_| \_|\____|
 #?
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-import assets.Dependencies as dp
+import ast
+from deprecated import deprecated
+import itertools
+import numpy as np
+import os
+import pandas as pd
+import scipy as sc
+from scipy.optimize import minimize
+import  assets.Dependencies         as        dp
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 class Processing:
     def __init__(self):
@@ -27,10 +35,10 @@ class Processing:
         !Returns:
             list            : A list of lists padded with NaN values to match the longest sublist length.
         """
-        # Transpose the sublists into columns filling missing entries with nan zip_longest(*results,fillvalue=dp.np.nan)
+        # Transpose the sublists into columns filling missing entries with nan zip_longest(*results,fillvalue=np.nan)
         # Transpose back to rows to get original sublists padded to max length
         # Convert each tuple back to a list
-        return list(map(list,zip(*dp.itertools.zip_longest(*results,fillvalue=dp.np.nan))))
+        return list(map(list,zip(*itertools.zip_longest(*results,fillvalue=np.nan))))
 
     def analytical_magnetic_loss(self, nestedresults, FFT_current, l):
         """
@@ -58,7 +66,7 @@ class Processing:
         # Parameters for core loss calculation using IGSE method.
         # Compute core loss and append to the list.
         flux_link     = nestedresults[dp.pmapping['Transformer Flux']]
-        point_flux    = dp.np.round((dp.np.max(flux_link)-dp.np.min(flux_link))/2 , decimals=12 )
+        point_flux    = np.round((np.max(flux_link)-np.min(flux_link))/2 , decimals=12 )
         Bp            = point_flux/(dp.mdlVars['DCDC_Rail1']['Trafo']['Core']['Ae'] * dp.mdlVars['DCDC_Rail1']['Trafo']['Np'])
         d             = [nestedresults[dp.pmapping['PWM Modulator Primary Modulator Duty Cycle'] + dp.Y_list[3] + 1]]
         d             = self.rms_avg('AVG', d, nestedresults[0])
@@ -83,16 +91,16 @@ class Processing:
             R_sec.append(sec_Rvec[i][-1])
 
         # Compute optimized AC resistances using rac_lac_values method.
-        res_optimize_pri = self.rac_lac_values('min', dp.mdlVars['DCDC_Rail1']['Trafo']['Lm'], dp.np.array(f_tfo) * 1e5, dp.np.array(R_pri))
-        res_optimize_sec = self.rac_lac_values('min', dp.mdlVars['DCDC_Rail1']['Trafo']['Lm'] / 100, dp.np.array(f_tfo) * 1e5, dp.np.array(R_sec))  # Adjust Lm for secondary
+        res_optimize_pri = self.rac_lac_values('min', dp.mdlVars['DCDC_Rail1']['Trafo']['Lm'], np.array(f_tfo) * 1e5, np.array(R_pri))
+        res_optimize_sec = self.rac_lac_values('min', dp.mdlVars['DCDC_Rail1']['Trafo']['Lm'] / 100, np.array(f_tfo) * 1e5, np.array(R_sec))  # Adjust Lm for secondary
 
         # Compute copper losses by summing I^2 * R for each harmonic, scaled appropriately.
-        pri_copper_loss.append(dp.np.sum(res_optimize_pri['Rac_calculated'] * pri_Rscale * 0.5 * dp.np.square(FFT_current[l*len(dp.harmonics):(l+1)*len(dp.harmonics), dp.pmapping['Transformer Primary Current']-1][f_tfo[1:]])))
-        sec_copper_loss.append(dp.np.sum(res_optimize_sec['Rac_calculated'] * sec_Rscale * 0.5 * dp.np.square(FFT_current[l*len(dp.harmonics):(l+1)*len(dp.harmonics), dp.pmapping['Transformer Secondary Current']-1][f_tfo[1:]])))
+        pri_copper_loss.append(np.sum(res_optimize_pri['Rac_calculated'] * pri_Rscale * 0.5 * np.square(FFT_current[l*len(dp.harmonics):(l+1)*len(dp.harmonics), dp.pmapping['Transformer Primary Current']-1][f_tfo[1:]])))
+        sec_copper_loss.append(np.sum(res_optimize_sec['Rac_calculated'] * sec_Rscale * 0.5 * np.square(FFT_current[l*len(dp.harmonics):(l+1)*len(dp.harmonics), dp.pmapping['Transformer Secondary Current']-1][f_tfo[1:]])))
 
         # Compute optimized Rac and Lac using Dowell's equation
         # Foil winding for primary: two parallel foils with five turns, repeated twice
-        f = dp.np.logspace(3,7,2000)
+        f = np.logspace(3,7,2000)
         Zw_pri, Rdc_pri, Ldc_pri, Fr_pri, Fl_pri, Q_pri = self.analytical_impedance(f,25,70e-6*170,2*5,47e-3,1,110e-3,1,2)
         res_optimize_pri = self.Dowell_Rac_Lac(f,Zw_pri,Rdc_pri,Ldc_pri,Fr_pri,Fl_pri,Q_pri,dp.mdlVars['DCDC_Rail1']['Trafo']['Lm'])
 
@@ -105,7 +113,7 @@ class Processing:
         # Calculate peak flux density in the choke core
         # Compute core loss using trapezoidal integration (IGSE method)
         Iind    = nestedresults[dp.pmapping['DC Choke Current']]
-        Iindp   = (dp.np.max(Iind) - dp.np.min(Iind)) / 2
+        Iindp   = (np.max(Iind) - np.min(Iind)) / 2
         Bpl     = (dp.mdlVars['DCDC_Rail1']['Lf']['L'] * Iindp) / (dp.mdlVars['DCDC_Rail1']['Lf']['N'] * dp.mdlVars['DCDC_Rail1']['Lf']['Core']['Ae'])
         Sp_choke = dp.mdlVars['DCDC_Rail1']['Lf']['Core']['SP_l']
         Vcl      = dp.mdlVars['DCDC_Rail1']['Lf']['Core']['Vc']
@@ -121,12 +129,12 @@ class Processing:
         ind_Rscale        = dp.mdlVars['DCDC_Rail1']['Lf']['Winding']['Rwind']['Rscale']
         f_ind             = dp.mdlVars['DCDC_Rail1']['Lf']['Winding']['Harmonics']
         for i in range(len(ind_Rvec)):R_ind.append(ind_Rvec[i][-1])
-        choke_copper_loss.append(dp.np.sum(dp.np.array(R_ind[1:]) * ind_Rscale * (1/2) * dp.np.square(choke_current_fft[f_ind[1:]])) + (dp.np.array(R_ind[0]) * ind_Rscale * dp.np.square(choke_current_fft[0])))
+        choke_copper_loss.append(np.sum(np.array(R_ind[1:]) * ind_Rscale * (1/2) * np.square(choke_current_fft[f_ind[1:]])) + (np.array(R_ind[0]) * ind_Rscale * np.square(choke_current_fft[0])))
 
         # Return arrays of calculated losses for transformers and chokes.
-        return dp.np.array(core_loss), dp.np.array(pri_copper_loss), dp.np.array(sec_copper_loss), dp.np.array(choke_core_loss), dp.np.array(choke_copper_loss)
+        return np.array(core_loss), np.array(pri_copper_loss), np.array(sec_copper_loss), np.array(choke_core_loss), np.array(choke_copper_loss)
 
-    @dp.deprecated(reason="Candidate for remove?")
+    @deprecated(reason="Candidate for remove?")
     def drop_Extra_Cols(self, filename, idx_start, idx_end):
         """
         Drop specified columns range from a CSV file.
@@ -141,7 +149,7 @@ class Processing:
         # Read the CSV file into a DataFrame
         # Drop the columns between idx_start and idx_end
         # Overwrite the original CSV with the updated DataFrame
-        df                  = dp.pd.read_csv(filename, header=None)
+        df                  = pd.read_csv(filename, header=None)
         df.drop(df.columns[idx_start:idx_end], axis=1, inplace=True)
         df.to_csv(filename, index=False, header=None)
 
@@ -160,7 +168,7 @@ class Processing:
 
         # Create a 2D linear interpolator over the grid defined by (x, y) with values z
         # Return the interpolation function for later evaluation
-        interp_func     = dp.sc.interpolate.RegularGridInterpolator((x, y), z, method='linear', bounds_error=False, fill_value=None)
+        interp_func     = sc.interpolate.RegularGridInterpolator((x, y), z, method='linear', bounds_error=False, fill_value=None)
         return interp_func
 
     def LuT_3D(self, x, y, z, data):
@@ -179,7 +187,7 @@ class Processing:
 
         # Create a 3D linear interpolator over the grid defined by (x, y, z) with values in 'data'
         # Return the interpolation function for later evaluation
-        interp_func     = dp.sc.interpolate.RegularGridInterpolator((x,y,z), data, method='linear', bounds_error=False, fill_value=None)
+        interp_func     = sc.interpolate.RegularGridInterpolator((x,y,z), data, method='linear', bounds_error=False, fill_value=None)
         return interp_func
 
     def IIR_Filter(self, Time, Signal, Cutoff, Order=2, BType='low', FType='butter'):
@@ -216,8 +224,8 @@ class Processing:
 
         # An IIR filter is then designed with the specified cutoff frequency, and finally, zero-phase filtering
         # is applied to eliminate phase distortion in the filtered signal.
-        b,a                 =   dp.sc.signal.iirfilter(Order, Wn=Fn, fs=Fs, btype=BType, ftype=FType)
-        Signal_Filtered     =   dp.sc.signal.filtfilt(b, a, Signal)
+        b,a                 =   sc.signal.iirfilter(Order, Wn=Fn, fs=Fs, btype=BType, ftype=FType)
+        Signal_Filtered     =   sc.signal.filtfilt(b, a, Signal)
 
         return Signal_Filtered
 
@@ -247,7 +255,7 @@ class Processing:
             iteration_range = list(range(1, Threads * (itr + 1) + 1))
 
         # Gather all result filenames in the path
-        for filename in dp.os.scandir(path):
+        for filename in os.scandir(path):
             file_list.append(str(filename.path.replace("\\", "/")))
 
         # Extract iteration numbers from filenames
@@ -278,7 +286,7 @@ class Processing:
         # Convert string representation to actual list
         # and return the length of the first non-zero list encountered
         for lst in reversed(lists):
-            lst = dp.ast.literal_eval(lst)
+            lst = ast.literal_eval(lst)
             if lst != [0]:
                 return len(lst)
 
@@ -410,8 +418,8 @@ class Processing:
                 iter_continous = i
 
         # Remove duplicates from iteration lists
-        iter_10s    =   list(dp.np.unique(dp.np.array(iter_10s)))
-        iter_2s     =   list(dp.np.unique(dp.np.array(iter_2s)))
+        iter_10s    =   list(np.unique(np.array(iter_10s)))
+        iter_2s     =   list(np.unique(np.array(iter_2s)))
 
         # Calculate thread counts for continuous, 10s, and 2s simulations
         for i in range(len(iter_10s)):
@@ -477,9 +485,9 @@ class Processing:
 
         # Helper function to compute ki based on Steinmetz parameters
         def ki(k,a,b):
-            f = lambda theta, a: (abs(dp.np.cos(theta)))**SP[1]
-            integral, error = dp.sc.integrate.quad(f, 0, 2* dp.np.pi, args=(SP[1]))
-            ki = SP[0]/((2*dp.np.pi)**(SP[1]-1) * 2**(SP[2]-SP[1]) * integral)
+            f = lambda theta, a: (abs(np.cos(theta)))**SP[1]
+            integral, error = sc.integrate.quad(f, 0, 2* np.pi, args=(SP[1]))
+            ki = SP[0]/((2*np.pi)**(SP[1]-1) * 2**(SP[2]-SP[1]) * integral)
             return ki
 
         # Compute average core loss density based on waveform type
@@ -522,17 +530,17 @@ class Processing:
         # Add the core loss with IGSE loss to get total average core loss
         match Wf:
             case 'trap':
-                Pave_density = n * 1/T * SR[0] * abs(dBdt)**SR[1] * abs(dB)**SR[2] * (1-dp.np.exp(-t1/SR[3]))
+                Pave_density = n * 1/T * SR[0] * abs(dBdt)**SR[1] * abs(dB)**SR[2] * (1-np.exp(-t1/SR[3]))
                 P_rl = Pave_density * Vc
-                Pave_core = dp.np.sum(self.IGSE('trap', SP, d, f_s, Bp, Vc) + P_rl)
+                Pave_core = np.sum(self.IGSE('trap', SP, d, f_s, Bp, Vc) + P_rl)
             case 'tri':
                 if d < 0.5:
-                    Pave_density = dp.np.exp(-qr * (d/(1-d)))
+                    Pave_density = np.exp(-qr * (d/(1-d)))
                 else :
                     d = 1-d
-                    Pave_density = dp.np.exp(-qr * (d/(1-d)))
+                    Pave_density = np.exp(-qr * (d/(1-d)))
                 Q_rl = Pave_density * Vc
-                Pave_core = dp.np.sum(self.IGSE('tri', SP, d, f_s, Bp, Vc) + Q_rl)
+                Pave_core = np.sum(self.IGSE('tri', SP, d, f_s, Bp, Vc) + Q_rl)
 
         # return average core losses
         return Pave_core
@@ -569,22 +577,22 @@ class Processing:
 
         # Remove DC component from frequency and resistance arrays
         valid_index         = frequencies != 0
-        frequencies         = dp.np.array(frequencies[valid_index])
-        Z_real_csv          = dp.np.array(Z_real_csv[valid_index])
+        frequencies         = np.array(frequencies[valid_index])
+        Z_real_csv          = np.array(Z_real_csv[valid_index])
 
         #* -------------------------------
         #* Step 2: Initialize parameters
         #* -------------------------------
 
         # Initial AC resistance (small positive values) and AC inductance (evenly split)
-        R_ac                = dp.np.ones(len(frequencies)) * 1e-3
-        L_ac                = dp.np.full(len(frequencies), L_primary / len(frequencies))
+        R_ac                = np.ones(len(frequencies)) * 1e-3
+        L_ac                = np.full(len(frequencies), L_primary / len(frequencies))
 
         # Concatenate into a single initial guess vector for optimization
-        initial             = dp.np.concatenate([R_ac, L_ac])
+        initial             = np.concatenate([R_ac, L_ac])
 
         # Compute angular frequencies and AC residuals
-        omega               = 2 * dp.np.pi * frequencies
+        omega               = 2 * np.pi * frequencies
         Z_real_residual_csv = Z_real_csv - R_dc
 
         #* -------------------------------
@@ -704,7 +712,7 @@ class Processing:
                             )
 
                 # Perform constrained minimization
-                res         = dp.sc.optimize.minimize(cost_minimize, initial, args=(omega, Z_real_residual_csv), bounds=bounds, constraints=constraints)
+                res         = sc.optimize.minimize(cost_minimize, initial, args=(omega, Z_real_residual_csv), bounds=bounds, constraints=constraints)
 
             case 'ls':
 
@@ -754,7 +762,7 @@ class Processing:
                 ub      = [100e-3] * len(frequencies) + [1e-3] * len(frequencies)
 
                 # Perform least squares fitting
-                res     = dp.sc.optimize.least_squares(cost_leastsquares, initial, args=(omega, Z_real_residual_csv), bounds=(lb, ub))
+                res     = sc.optimize.least_squares(cost_leastsquares, initial, args=(omega, Z_real_residual_csv), bounds=(lb, ub))
 
         #* -------------------------------
         #* Step 4: Extract fitted parameters
@@ -814,32 +822,32 @@ class Processing:
         """
         # Constants
         # permeability of free space (H/m), resistivity(Ω.m) of copper at 20°C and temp. coefficient of Copper
-        mu0     = 4*dp.np.pi*1e-7
+        mu0     = 4*np.pi*1e-7
         ro      = 1.71e-8
         temp_coeff = 0.00393
 
         # Compute diameter of equivalent square conductor (m) for given winding wire geometry
-        w       = 2*dp.np.pi*f
-        d       = dp.np.sqrt(dp.np.pi/4) * h * par
+        w       = 2*np.pi*f
+        d       = np.sqrt(np.pi/4) * h * par
 
         # Compute skin depth effect at a given temperature T
         rho     = ro*(1+temp_coeff*(T-20))
-        skin    = dp.np.sqrt((2*rho)/(w*mu0))
+        skin    = np.sqrt((2*rho)/(w*mu0))
 
         #* Compute Dowell's parameters
         # alpha, D, M, and Q- normalized height of layer relative to skin depth
-        alpha   = dp.np.sqrt(1j*w*mu0*n*(1/rho))
-        D       = 2*alpha*d*dp.np.tanh(alpha*d/2)
-        M       = alpha*d *(1/dp.np.tanh(alpha*d))
+        alpha   = np.sqrt(1j*w*mu0*n*(1/rho))
+        D       = 2*alpha*d*np.tanh(alpha*d/2)
+        M       = alpha*d *(1/np.tanh(alpha*d))
         Q       = d/skin
 
         # Compute ratio of ac resistance to dc resistance
-        Fr      = dp.np.real(M)+ (m**2 - 1)*(dp.np.real(D)/3)
+        Fr      = np.real(M)+ (m**2 - 1)*(np.real(D)/3)
         Rdc     = m*rho*Nt**2*Tl/(n*b*d)
         Rac     = Rdc * Fr
 
         # Compute ratio of ac leakage inductance to dc leakage inductance
-        Fl      = (3*dp.np.imag(M) + (m**2 - 1)*dp.np.imag(D))/(m**2 * abs(alpha**2 * d**2))
+        Fl      = (3*np.imag(M) + (m**2 - 1)*np.imag(D))/(m**2 * abs(alpha**2 * d**2))
         Ldc     = (mu0* m**3 *Nt**2 *Tl *d)/ (3*b)
         Lac     = Ldc*Fl
         Zw      = Rac + 1j*w*Lac
@@ -884,7 +892,7 @@ class Processing:
             !Returns:
                 Zeq (Ω)     : Equivalent impedance (Rdc + ∑ (Rac || Lac))
             """
-            w    = 2*dp.np.pi*f
+            w    = 2*np.pi*f
             Zeq = Rdc + 0j
             for Ri, Li in zip(R, L):
                 Zeq += (Ri * (w*Li)**2 + 1j* Ri**2 * w*Li)/(Ri**2 + w*Li**2)
@@ -931,11 +939,11 @@ class Processing:
         #* -------------------------------
 
         # Initial AC resistance and AC inductance(small positive values)
-        Rk = dp.np.ones(5)*1e-3
-        Lk = dp.np.ones(5)*0.1e-6
+        Rk = np.ones(5)*1e-3
+        Lk = np.ones(5)*0.1e-6
 
         # Concatenate into a single initial guess vector for optimization
-        initial = dp.np.concatenate([Rk,Lk])
+        initial = np.concatenate([Rk,Lk])
 
         #*--------------------------------
         #* Define inequality constraints
@@ -1003,14 +1011,14 @@ class Processing:
                  )
 
         # Perform constrained minimization
-        res_min = dp.minimize(cost_minimize, initial, args= (f, Zw, Fr,Fl, Rdc, Ldc), bounds=bounds, constraints=constraints,)
+        res_min = minimize(cost_minimize, initial, args= (f, Zw, Fr,Fl, Rdc, Ldc), bounds=bounds, constraints=constraints,)
 
         #* -------------------------------
         #* Step 4: Extract fitted parameters
         #* -------------------------------
         fitted_param_min     = res_min.x
-        R_fit_min            = dp.np.array(fitted_param_min[:5])
-        L_fit_min            = dp.np.array(fitted_param_min[5:])
+        R_fit_min            = np.array(fitted_param_min[:5])
+        L_fit_min            = np.array(fitted_param_min[5:])
 
         # Calculate equivalent impedance from the fitted Rac and Lac
         Z_fit_min            = eq_impedance(f,Rdc,R_fit_min, L_fit_min)

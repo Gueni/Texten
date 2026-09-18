@@ -7,7 +7,12 @@
 #?                                          |_| \_\\__,_|_| |_|____/ \___|_|  |_| .__/ \__|___/
 #?                                                                              |_|
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-import  assets.Dependencies         as      dp
+import copy
+import numpy as np
+import os
+import assets.Mapping.plecs_mapping as pmap
+import pyfiglet
+import  assets.Dependencies         as        dp
 import  Lib.error_handler           as      er
 import  Lib.pyplecs_rpc             as      pc
 import  Lib.Data_Process            as      PP
@@ -47,7 +52,7 @@ class runScripts:
         # Initialize the simulation environment by creating necessary folders.
         # Selecting the mapping for post-processing, initializing simulation variables.
         self.fileLog.createFolders()
-        dp.pmap.select_mapping()
+        pmap.select_mapping()
 
         # Initialize the PLECS model and set up the model variables, solver options, and analysis options.
         for item in self.JS['ModelVars']    :   exec(item)
@@ -104,7 +109,7 @@ class runScripts:
         self.fileLog.log('{} = {}'.format("['Name']".ljust(self.fileLog.PADDING_WIDTH  , ' '),str(OptStruct['Name']) +'\n'))
 
         # Log the parameters of the current simulation iteration for HTML tables.
-        self.plot.tab_val_list.append(dp.copy.deepcopy(OptStruct['ModelVars']))
+        self.plot.tab_val_list.append(copy.deepcopy(OptStruct['ModelVars']))
 
         self.plot.iter_param_key.append(self.JS['paramKeys'])
         self.plot.iter_param_val.append(eval(self.JS['paramVals']))
@@ -170,7 +175,7 @@ class runScripts:
                                                 self.obj.path                                                                                                                       ,
                                                 self.fileLog.resultfolder+"/"+"PLECS_MODEL_"+"standalone_"+self.JS['modelname']                                                     ,
                                                 self.obj.OptStruct[0]['ModelVars'] if (self.simutil.Threads >= 1 and dp.JSON['parallel']) else self.obj.OptStruct['ModelVars']      ,
-                                                (dp.os.getcwd()).replace("\\","/")+"/Script/assets/Configuration/InitializationCommands.m"                                          ,
+                                                (os.getcwd()).replace("\\","/")+"/Script/assets/Configuration/InitializationCommands.m"                                          ,
                                                 self.simutil.Map                                                                                                                    ,
                                                 self.obj.OptStruct[0]['SolverOpts'] if (self.simutil.Threads >= 1 and dp.JSON['parallel']) else self.obj.OptStruct['SolverOpts']
                                             )
@@ -207,7 +212,7 @@ class runScripts:
         self.obj.OptStruct  = []
 
         # Convert missing iters array back to list
-        MissingIter         = (dp.np.array(MissingIter)-1).tolist()
+        MissingIter         = (np.array(MissingIter)-1).tolist()
         return MissingIter
 
     @er.hint(" hint inside log_header")
@@ -224,7 +229,7 @@ class runScripts:
         if not simulation:
             self.fileLog.param_log(OptStruct, self.simutil.Threads,iters=self.simutil.Iterations,sims=self.simutil.Simulations)
             self.fileLog.line_separator()
-            self.fileLog.log(dp.pyfiglet.figlet_format("ITERATIONS PARAMETERS", width=200))
+            self.fileLog.log(pyfiglet.figlet_format("ITERATIONS PARAMETERS", width=200))
 
         # Log current simulation number.
         self.fileLog.line_separator()

@@ -8,7 +8,22 @@
 #?                                                                                     |___/ |___/         |___/
 #?
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-import assets.Dependencies as dp
+import datetime
+import flatdict
+import jinja2
+import json
+import natsort
+import os
+import pathlib
+import pyfiglet
+import re
+import shutil
+import subprocess
+import sys
+import time
+import win32con
+import win32gui
+import  assets.Dependencies         as        dp
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 class FileAndLogging:
     def __init__(self, suffix="", json_dir=""):
@@ -18,19 +33,19 @@ class FileAndLogging:
 
         self.line_length            =   180                                                                                                                     # line separator length
         self.log_offset             =    5                                                                                                                      # paddign offset for log
-        self.utc                    =   str(int(dp.time.time()*1000))                                                                                           # current time in milliseconds
+        self.utc                    =   str(int(time.time()*1000))                                                                                           # current time in milliseconds
         dp.suffix                   =   suffix                                                                                                                  # suffix for result folder
         self.ResultsPath            =   ""                                                                                                                      # path to results folder
-        self.basename               =   dp.os.path.basename(dp.sys.argv[0])[:-3]                                                                                # base name of the script without .py
-        self.resultfolder           =   (dp.os.getcwd()).replace("\\","/") + "/Script/" + "D".upper() + "ata/Res/"      + json_dir + "_" + self.utc + suffix    # result folder path
-        self.logfolder              =   (dp.os.getcwd()).replace("\\","/") + "/Script/" + "D".upper() + "ata/Log/"      + json_dir                              # log folder path
-        self.scriptbody_folder      =   (dp.os.getcwd()).replace("\\","/") + "/Script/" + "D".upper() + "ata/Scripts/"  + json_dir                              # scriptbody scripts folder path
-        self.jsonfolder             =   (dp.os.getcwd()).replace("\\","/") + "/Script/" + "D".upper() + "ata/Json/"     + json_dir                              # json input folder path
-        self.initfolder             =   (dp.os.getcwd()).replace("\\","/") + "/Script/" + "D".upper() + "ata/cmd/"      + json_dir                              # initialization commands folder path
+        self.basename               =   os.path.basename(sys.argv[0])[:-3]                                                                                # base name of the script without .py
+        self.resultfolder           =   (os.getcwd()).replace("\\","/") + "/Script/" + "D".upper() + "ata/Res/"      + json_dir + "_" + self.utc + suffix    # result folder path
+        self.logfolder              =   (os.getcwd()).replace("\\","/") + "/Script/" + "D".upper() + "ata/Log/"      + json_dir                              # log folder path
+        self.scriptbody_folder      =   (os.getcwd()).replace("\\","/") + "/Script/" + "D".upper() + "ata/Scripts/"  + json_dir                              # scriptbody scripts folder path
+        self.jsonfolder             =   (os.getcwd()).replace("\\","/") + "/Script/" + "D".upper() + "ata/Json/"     + json_dir                              # json input folder path
+        self.initfolder             =   (os.getcwd()).replace("\\","/") + "/Script/" + "D".upper() + "ata/cmd/"      + json_dir                              # initialization commands folder path
         self.nested_res_hier        =   ''                                                                                                                      # nested results hierarchy
         self.model_vars_names       =   []                                                                                                                      # list of first order dict names
 
-        self.fix_json_strings       =   lambda folder: [f.write_text(dp.json.dumps([s.replace(" ", "_").replace("-", "_") for s in dp.json.loads(f.read_text())], indent=2)) for f in dp.pathlib.Path(folder).glob("*.json")]
+        self.fix_json_strings       =   lambda folder: [f.write_text(json.dumps([s.replace(" ", "_").replace("-", "_") for s in json.loads(f.read_text())], indent=2)) for f in pathlib.Path(folder).glob("*.json")]
         self.filter_non_xi          =   lambda lst: [s for s in lst if not (s.startswith('X') and s[1:].isdigit())]
 
     def line_separator(self):
@@ -56,14 +71,14 @@ class FileAndLogging:
         # then return the sorted list of file paths then return it
         file_list   =   []
         if standalone:
-            for filename in dp.os.scandir(ResDir):
+            for filename in os.scandir(ResDir):
                 if filename.is_file() and filename.path.endswith('_Standalone.csv'):
                     file_list.append(str(filename.path.replace("\\","/")))
         else :
-            for filename in dp.os.scandir(ResDir):
+            for filename in os.scandir(ResDir):
                 if filename.is_file() and filename.path.endswith('.csv') and not filename.path.endswith('_Map.csv') and not filename.path.endswith('_Standalone.csv'):
                     file_list.append(str(filename.path.replace("\\","/")))
-        file_list = dp.natsort.natsorted(file_list)
+        file_list = natsort.natsorted(file_list)
         return  file_list
 
     def log(self,msg):
@@ -75,17 +90,17 @@ class FileAndLogging:
             msg   (string)    : message to be logged to file.
         """
         # if the file exists, open it in append mode, otherwise create a new file
-        if dp.os.path.exists(self.LogFile):
-            dp.sys.stdout  =   open(self.LogFile,'a')
+        if os.path.exists(self.LogFile):
+            sys.stdout  =   open(self.LogFile,'a')
         else :
-            dp.sys.stdout  =   open(self.LogFile,'w+')
+            sys.stdout  =   open(self.LogFile,'w+')
 
         # log the message
         print(msg)
 
         # close the file and restore stdout
-        dp.sys.stdout.close()
-        dp.sys.stdout = dp.sys.__stdout__
+        sys.stdout.close()
+        sys.stdout = sys.__stdout__
 
     def createFolders(self):
         """
@@ -94,12 +109,12 @@ class FileAndLogging:
 
         try:
             # Create results folder structure
-            dp.os.makedirs(self.resultfolder, exist_ok=False)
+            os.makedirs(self.resultfolder, exist_ok=False)
 
-            [dp.os.makedirs(self.resultfolder + subf, exist_ok=False) for subf in ["/HTML_REPORTS", "/HTML_GRAPHS", "/CSV_MAPS", "/CSV_TIME_SERIES", "/Scopes_Traces"]]
+            [os.makedirs(self.resultfolder + subf, exist_ok=False) for subf in ["/HTML_REPORTS", "/HTML_GRAPHS", "/CSV_MAPS", "/CSV_TIME_SERIES", "/Scopes_Traces"]]
 
             # Create other folders
-            [dp.os.makedirs(f, exist_ok=True) for f in [self.logfolder, self.jsonfolder, self.initfolder, self.scriptbody_folder]]
+            [os.makedirs(f, exist_ok=True) for f in [self.logfolder, self.jsonfolder, self.initfolder, self.scriptbody_folder]]
 
         except OSError: pass
 
@@ -125,7 +140,7 @@ class FileAndLogging:
         # The header includes a horizontal line, a stylized "SIMULATION STARTED" message
         # and another horizontal line to visually separate the header from the rest of the log content
         self.line_separator()
-        self.log(dp.pyfiglet.figlet_format("SIMULATION  STARTED",width=100))
+        self.log(pyfiglet.figlet_format("SIMULATION  STARTED",width=100))
         self.line_separator()
 
     def footer(self,simutil):
@@ -141,15 +156,15 @@ class FileAndLogging:
         # The footer includes the total simulation time, a message indicating that the simulation has ended,
         # and a copy of all output files to the result folder
         self.line_separator()
-        tf_sim  =   dp.time.time()
+        tf_sim  =   time.time()
         self.log('{} = {}'.format("Total Simulation Time".ljust(self.PADDING_WIDTH  , ' '),f"{str((tf_sim-dp.tinit_sim).__round__(3)/60)} minutes."))
 
         self.line_separator()
-        self.log(dp.pyfiglet.figlet_format("SIMULATION  ENDED",width=100))
+        self.log(pyfiglet.figlet_format("SIMULATION  ENDED",width=100))
         self.line_separator()
 
         if (dp.JSON['parallel']):
-            self.log(dp.pyfiglet.figlet_format("SIMULATION  ITERATIONS",width=150))
+            self.log(pyfiglet.figlet_format("SIMULATION  ITERATIONS",width=150))
             self.line_separator()
             self.log('{} = {}'.format(f"Iterations".ljust(self.PADDING_WIDTH  , ' '),f"{self.filter_non_xi(dp.JSON['sweepNames'])}"))
 
@@ -167,47 +182,47 @@ class FileAndLogging:
         Copy all required files to the result folder.
         """
 
-        cwd             = dp.os.getcwd().replace("\\", "/")
+        cwd             = os.getcwd().replace("\\", "/")
 
         # Base files to copy: (source, destination , condition)
         files_to_copy   = [
 
-            (dp.cp_mdl                                                                      ,dp.os.path.join(self.resultfolder  , "PLECS_MODEL_" + dp.cp_mdl.split('\\')[-1])   ,True                   ),    # Plecs model path
-            (dp.script_path                                                                 ,dp.os.path.join(self.resultfolder  , f"{self.basename}.py"                     )   ,True                   ),    # Script path
-            (f"{cwd}/Script/{dp.Runscript_path}"                                            ,dp.os.path.join(self.resultfolder  , "Runscript.py"                            )   ,True                   ),    # Runscript path
-            (self.LogFile                                                                   ,dp.os.path.join(self.resultfolder  , self.LogF_name                            )   ,True                   ),    # Log file path
+            (dp.cp_mdl                                                                      ,os.path.join(self.resultfolder  , "PLECS_MODEL_" + dp.cp_mdl.split('\\')[-1])   ,True                   ),    # Plecs model path
+            (dp.script_path                                                                 ,os.path.join(self.resultfolder  , f"{self.basename}.py"                     )   ,True                   ),    # Script path
+            (f"{cwd}/Script/{dp.Runscript_path}"                                            ,os.path.join(self.resultfolder  , "Runscript.py"                            )   ,True                   ),    # Runscript path
+            (self.LogFile                                                                   ,os.path.join(self.resultfolder  , self.LogF_name                            )   ,True                   ),    # Log file path
 
-            (f"{cwd}/Script/assets/UI/scripts.js"                                           ,dp.os.path.join(self.resultfolder  , "HTML_REPORTS/scripts.js"                 )   ,True                   ),    # java script file path
-            (f"{cwd}/Script/assets/Configuration/Input_vars.json"                           ,dp.os.path.join(self.resultfolder  , f"Input_vars_{self.utc}.json"             )   ,True                   ),    # Input_vars to results folder
-            (f"{cwd}/Script/assets/Parameters/Param_Dicts.py"                               ,dp.os.path.join(self.resultfolder  , "Param_Dicts.py"                          )   ,True                   ),    # Parameters dictionaries file path
-            (f"{cwd}/Script/assets/Mapping/plecs_mapping.py"                                ,dp.os.path.join(self.resultfolder  , "plecs_mapping.py"                        )   ,True                   ),    # Plecs signals mapping file path
-            (f"{cwd}/Script/assets/Configuration/InitializationCommands.m"                  ,dp.os.path.join(self.resultfolder  , f"InitializationCommands_{self.utc}.m"    )   ,True                   ),    # Plecs Initilization commands file path
-            (f"{cwd}/Script/assets/Configuration/Input_vars.json"                           ,dp.os.path.join(self.jsonfolder    , f"Input_vars_{self.utc}.json"             )   ,True                   ),    # Input_vars to json folder
-            (f"{cwd}/Script/assets/Configuration/InitializationCommands.m"                  ,dp.os.path.join(self.initfolder    , f"InitializationCommands_{self.utc}.m"    )   ,True                   ),    # InitializationCommands
+            (f"{cwd}/Script/assets/UI/scripts.js"                                           ,os.path.join(self.resultfolder  , "HTML_REPORTS/scripts.js"                 )   ,True                   ),    # java script file path
+            (f"{cwd}/Script/assets/Configuration/Input_vars.json"                           ,os.path.join(self.resultfolder  , f"Input_vars_{self.utc}.json"             )   ,True                   ),    # Input_vars to results folder
+            (f"{cwd}/Script/assets/Parameters/Param_Dicts.py"                               ,os.path.join(self.resultfolder  , "Param_Dicts.py"                          )   ,True                   ),    # Parameters dictionaries file path
+            (f"{cwd}/Script/assets/Mapping/plecs_mapping.py"                                ,os.path.join(self.resultfolder  , "plecs_mapping.py"                        )   ,True                   ),    # Plecs signals mapping file path
+            (f"{cwd}/Script/assets/Configuration/InitializationCommands.m"                  ,os.path.join(self.resultfolder  , f"InitializationCommands_{self.utc}.m"    )   ,True                   ),    # Plecs Initilization commands file path
+            (f"{cwd}/Script/assets/Configuration/Input_vars.json"                           ,os.path.join(self.jsonfolder    , f"Input_vars_{self.utc}.json"             )   ,True                   ),    # Input_vars to json folder
+            (f"{cwd}/Script/assets/Configuration/InitializationCommands.m"                  ,os.path.join(self.initfolder    , f"InitializationCommands_{self.utc}.m"    )   ,True                   ),    # InitializationCommands
 
-            (f"{cwd}/Script/{dp.ScriptBody_path}"                                           ,dp.os.path.join(self.resultfolder +"/","ScriptBody_" + self.utc + ".py"        )   ,dp.JSON['parallel']    ),    # ScriptBody
-            (f"{cwd}/Script/{dp.ScriptBody_path}"                                           ,dp.os.path.join(self.scriptbody_folder +"/","ScriptBody_" + self.utc + ".py"   )   ,dp.JSON['parallel']    ),    # ScriptBody
-            (dp.os.path.join(self.scriptbody_folder +"/","ScriptBody_" + self.utc + ".m")   ,dp.os.path.join(self.resultfolder +"/","ScriptBody_" + self.utc + ".m"         )   ,dp.JSON['parallel']    )     # ScriptBody
+            (f"{cwd}/Script/{dp.ScriptBody_path}"                                           ,os.path.join(self.resultfolder +"/","ScriptBody_" + self.utc + ".py"        )   ,dp.JSON['parallel']    ),    # ScriptBody
+            (f"{cwd}/Script/{dp.ScriptBody_path}"                                           ,os.path.join(self.scriptbody_folder +"/","ScriptBody_" + self.utc + ".py"   )   ,dp.JSON['parallel']    ),    # ScriptBody
+            (os.path.join(self.scriptbody_folder +"/","ScriptBody_" + self.utc + ".m")   ,os.path.join(self.resultfolder +"/","ScriptBody_" + self.utc + ".m"         )   ,dp.JSON['parallel']    )     # ScriptBody
 
                         ]
 
         # Directories to copy: (source, destination)
         dirs_to_copy = [
-                            (f"{cwd}/MyLibraries"                                           , dp.os.path.join(self.resultfolder , "PLECS_Lib")                                 , True                   ),     # Plecs libraries directory
-                            (f"{cwd}/Script/assets/Headers"                                 , dp.os.path.join(self.resultfolder , "HEADER_FILES")                              , dp.JSON["model"]       ),     # Headers json files directory
-                            (f"{cwd}/Script/assets/Mapping/{dp.JSON.get('model')}"          , dp.os.path.join(self.resultfolder , f"SIGNAL_MAPPING/{dp.JSON.get('model')}")    , dp.JSON["model"]       )      # Model specific signal mapping json directory
+                            (f"{cwd}/MyLibraries"                                           , os.path.join(self.resultfolder , "PLECS_Lib")                                 , True                   ),     # Plecs libraries directory
+                            (f"{cwd}/Script/assets/Headers"                                 , os.path.join(self.resultfolder , "HEADER_FILES")                              , dp.JSON["model"]       ),     # Headers json files directory
+                            (f"{cwd}/Script/assets/Mapping/{dp.JSON.get('model')}"          , os.path.join(self.resultfolder , f"SIGNAL_MAPPING/{dp.JSON.get('model')}")    , dp.JSON["model"]       )      # Model specific signal mapping json directory
                         ]
 
         # Copy all files
         for src, dst ,cond  in files_to_copy   :
-            if cond :   dp.shutil.copy(src, dst)
+            if cond :   shutil.copy(src, dst)
 
         # Copy all directories
         for src, dst ,cond  in dirs_to_copy    :
-            if cond :   dp.shutil.copytree(src, dst)
+            if cond :   shutil.copytree(src, dst)
 
         # Fix headers : replace spaces with _ ...
-        self.fix_json_strings(dp.os.path.join(self.resultfolder, "Headers"))
+        self.fix_json_strings(os.path.join(self.resultfolder, "Headers"))
 
     def get_last_commit(self):
         """
@@ -223,7 +238,7 @@ class FileAndLogging:
         # If an error occurs during the command execution, it prints the error message
         # and returns None for both the hash and comment.
         try:
-            result = dp.subprocess.run(
+            result = subprocess.run(
                                         ['git', 'log', '-1', '--pretty=format:%H%n%s']  ,
                                         capture_output  = True                          ,
                                         text            = True                          ,
@@ -231,7 +246,7 @@ class FileAndLogging:
                                     )
             commit_hash, commit_comment = result.stdout.split('\n', 1)
             return commit_hash, commit_comment
-        except dp.subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError as e:
             print(f"Error occurred: {e}")
             return None, None
 
@@ -270,7 +285,7 @@ class FileAndLogging:
                 self.log('{} = {}'.format("Last Commit Hash".ljust(self.PADDING_WIDTH       , ' '),str(commit_hash[:11])))
                 self.log('{} = {}'.format("Last Commit Comment".ljust(self.PADDING_WIDTH    , ' '),str(commit_comment)))
 
-            self.log('{} = {}'.format("Date & Time".ljust(self.PADDING_WIDTH        , ' '),str(dp.datetime.datetime.now())))
+            self.log('{} = {}'.format("Date & Time".ljust(self.PADDING_WIDTH        , ' '),str(datetime.datetime.now())))
             # if hierarchical:
             #     self.log('{} = {}'.format("Threads Vector".ljust(self.PADDING_WIDTH       , ' '),str(threads_vector)))
             # else:
@@ -281,7 +296,7 @@ class FileAndLogging:
             self.log('{} = {}'.format("Seed ".ljust(self.PADDING_WIDTH  , ' '),f'{dp.seed}'))
 
             self.line_separator()
-            self.log(dp.pyfiglet.figlet_format("DEFAULT PARAMETERS", width=200))
+            self.log(pyfiglet.figlet_format("DEFAULT PARAMETERS", width=200))
             self.line_separator()
 
         # If the input is a dictionary, iterate through its items
@@ -293,15 +308,15 @@ class FileAndLogging:
                 p2 = "{}['{}']".format(prefix, k)
                 self.param_log(v2,Threads,p2,isFirst=False)
         else:
-            if dp.os.path.exists(self.LogFile):
-                dp.sys.stdout = open(self.LogFile, 'a')
+            if os.path.exists(self.LogFile):
+                sys.stdout = open(self.LogFile, 'a')
             else:
-                dp.sys.stdout = open(self.LogFile, 'w+')
+                sys.stdout = open(self.LogFile, 'w+')
 
             print('{} = {}'.format(prefix.ljust(self.PADDING_WIDTH, ' '), repr(dictt)))
 
-            dp.sys.stdout.close()
-            dp.sys.stdout = dp.sys.__stdout__
+            sys.stdout.close()
+            sys.stdout = sys.__stdout__
 
     def InitializationCommands(self, input_file, output_file, modelvars, m_file, mapvars,solveropts):
         """
@@ -327,7 +342,7 @@ class FileAndLogging:
             octave_code = self.octave_sweep_script(
                                                     mapvars                                                                                                     ,
                                                     dp.JSON['sweepNames']                                                                                       ,
-                                                    self.octave_sweep_mapping(dp.os.path.join(dp.os.getcwd(), "Script", dp.ScriptBody_path).replace("\\", "/")) ,
+                                                    self.octave_sweep_mapping(os.path.join(os.getcwd(), "Script", dp.ScriptBody_path).replace("\\", "/")) ,
                                                     modelvars                                                                                                   ,
                                                     dp.scopes                                                                                                   ,
                                                     solveropts
@@ -343,12 +358,12 @@ class FileAndLogging:
             # where each key-value pair is formatted as `key=value;`
             # and each pair is on a new line
             # e.g., {'a': {'b': 1}} -> "a.b=1;"
-            flattened_dict      = dp.flatdict.FlatDict(modelvars,delimiter='.')
+            flattened_dict      = flatdict.FlatDict(modelvars,delimiter='.')
             flattened_str_dot   = '\n'.join(f"{key}={value};" if (not isinstance(value,str)) else f"{key}='{value}';" for key, value in flattened_dict.items()  )
 
             # replace the content of InitializationCommands in case it is empty or not.
             for line in infile:
-                    match   = dp.re.search(r'InitializationCommands "(.*?)"', line)
+                    match   = re.search(r'InitializationCommands "(.*?)"', line)
                     if match:
                         existing_content    = match.group(1)
 
@@ -367,7 +382,7 @@ class FileAndLogging:
         # Create the directory for the .m file if it does not exist
         # and write the flattened dictionary string to the .m file
         # Ensure the directory exists before writing the file
-        dp.os.makedirs(dp.os.path.dirname(m_file), exist_ok=True)
+        os.makedirs(os.path.dirname(m_file), exist_ok=True)
         with open(m_file, 'w', encoding='utf-8') as m_out:
             # Write struct definitions at the beginning of the .m file as well
             if self.model_vars_names:
@@ -396,9 +411,9 @@ class FileAndLogging:
             model_path (string)         : path to the plecs standalone model.
             timeout    (int, optional)  : Timeout to break infinit loop. Defaults to 120.
         """
-        model_name  = dp.os.path.basename(model_path).replace('.plecs','')
-        dp.os.startfile(model_path)
-        start       = dp.time.time()
+        model_name  = os.path.basename(model_path).replace('.plecs','')
+        os.startfile(model_path)
+        start       = time.time()
         Passed      = False
 
         while True:
@@ -409,42 +424,42 @@ class FileAndLogging:
                 Passed = True
                 break  # continue main code
 
-            if dp.time.time() - start > timeout:
+            if time.time() - start > timeout:
                 Passed = False
                 print(f"TimeoutError( Model '{model_name}' didn't open in {timeout}s --> external lib links where not broken in standalone model file.")
                 break
 
-        dp.time.sleep(2)
+        time.sleep(2)
 
         if Passed :
-            handle = dp.win32gui.FindWindow(None,target_window.title)
-            dp.win32gui.ShowWindow(handle,dp.win32con.SW_RESTORE)
-            dp.win32gui.SetForegroundWindow(handle)
+            handle = win32gui.FindWindow(None,target_window.title)
+            win32gui.ShowWindow(handle,win32con.SW_RESTORE)
+            win32gui.SetForegroundWindow(handle)
             target_window.maximize()
-            dp.time.sleep(0.5)
+            time.sleep(0.5)
 
             # click on edit
             dp.pyautogui.hotkey('alt','e')
-            dp.time.sleep(0.5)
+            time.sleep(0.5)
             # go to the end
             dp.pyautogui.press('end')
-            dp.time.sleep(0.5)
+            time.sleep(0.5)
             # go up once
             dp.pyautogui.press('up')
-            dp.time.sleep(0.5)
+            time.sleep(0.5)
             # click on Break all external links...
             dp.pyautogui.press('enter')
-            dp.time.sleep(0.5)
+            time.sleep(0.5)
             # switch from cancel to okay in the warning menu
             dp.pyautogui.press('tab')
             # click okay
             dp.pyautogui.press('enter')
-            dp.time.sleep(0.5)
+            time.sleep(0.5)
             # click okay in the message menu
             dp.pyautogui.press('enter')
             # click save model
             dp.pyautogui.hotkey('ctrl','s')
-            dp.time.sleep(5)
+            time.sleep(5)
             target_window.restore()
             # click close model
             dp.pyautogui.hotkey('ctrl','F4')
@@ -493,7 +508,7 @@ class FileAndLogging:
         template_file       = '/Script/assets/Templates/octave_sweep_template.j2'
 
         # Create Jinja2 environment with current directory as template loader
-        env                 = dp.jinja2.Environment(loader=dp.jinja2.FileSystemLoader(dp.os.getcwd()), trim_blocks=True, lstrip_blocks=True)
+        env                 = jinja2.Environment(loader=jinja2.FileSystemLoader(os.getcwd()), trim_blocks=True, lstrip_blocks=True)
 
         # Load the specific template file
         template            = env.get_template(template_file)
@@ -510,8 +525,8 @@ class FileAndLogging:
         simstruct_line      =  f"simStruct = struct('ModelVars', {self.dict_to_struct(model_vars_dict)}, 'SolverOpts', {self.dict_to_struct(solveropts)});"
 
         # Create the results folder path in the current working directory
-        scopes_folder       = dp.os.path.join(self.resultfolder, 'Scopes_Traces')
-        csv_folder          = dp.os.path.join(self.resultfolder, 'CSV_TIME_SERIES')
+        scopes_folder       = os.path.join(self.resultfolder, 'Scopes_Traces')
+        csv_folder          = os.path.join(self.resultfolder, 'CSV_TIME_SERIES')
 
         # Render the template with all the parameters and return the result
         return template.render(
@@ -558,7 +573,7 @@ class FileAndLogging:
         section_pattern = start_marker + r"\s*(.*?)\s*" + end_marker
 
         # DOTALL allows '.' to match newlines
-        section_match   = dp.re.search(section_pattern, content, dp.re.DOTALL)
+        section_match   = re.search(section_pattern, content, re.DOTALL)
 
         # Warn and return empty dictionary if the section was not found
         if not section_match:
@@ -589,7 +604,7 @@ class FileAndLogging:
             right       = right.strip()         # Trim whitespace from RHS
 
             # Match the left-hand side variable path starting with 'mdlVars'
-            path_match  = dp.re.search(r"mdlVars(.*?)$", left)
+            path_match  = re.search(r"mdlVars(.*?)$", left)
 
             # Skip if LHS does not contain mdlVars
             if not path_match:continue
@@ -601,7 +616,7 @@ class FileAndLogging:
             full_path   = 'mdlVars'
 
             # Convert indexing like ['Common']['Thermal'] to dot notation
-            for part in dp.re.findall(r"\[['\"](.*?)['\"]\]", path):    full_path += f'.{part}'
+            for part in re.findall(r"\[['\"](.*?)['\"]\]", path):    full_path += f'.{part}'
 
             # Convert Python-style 'mdlVars' path to Octave simStruct.ModelVars path
             if full_path.startswith('mdlVars.'):
@@ -610,7 +625,7 @@ class FileAndLogging:
                 octave_path = 'simStruct.ModelVars.' + full_path      # Otherwise, pre append full prefix
 
             # ---------- Handle derived parameters containing other mdlVars references ----------
-            if dp.re.search(r"mdlVars(\[['\"].*?['\"]\])+", right):
+            if re.search(r"mdlVars(\[['\"].*?['\"]\])+", right):
 
                 expr = right                        # Store the right-hand side expression
                 expr = expr.replace('**', '^')      # Convert Python exponent '**' to Octave '^'
@@ -621,7 +636,7 @@ class FileAndLogging:
                     def replace_dp(match):
 
                         # Extract the keys inside brackets, like  ['Common']['Thermal']
-                        parts   = dp.re.findall(r"\[['\"](.*?)['\"]\]", match.group(0))
+                        parts   = re.findall(r"\[['\"](.*?)['\"]\]", match.group(0))
 
                         # Start from the dp.mdlVars module
                         val     = dp.mdlVars
@@ -631,12 +646,12 @@ class FileAndLogging:
                         return str(val)     # Return the actual value as string
 
                     # Replace all dp.mdlVars[...] occurrences in the expression with actual values
-                    expr = dp.re.sub(r"dp\.mdlVars(\[['\"].*?['\"]\])+", replace_dp, expr)
+                    expr = re.sub(r"dp\.mdlVars(\[['\"].*?['\"]\])+", replace_dp, expr)
 
                 # ---------- Handle mapVars references inside derived expression ----------
 
                 mapvar_pattern  = r"mapVars\[X(\d+)\](?:\[(\d+)\])?"
-                all_matches     = list(dp.re.finditer(mapvar_pattern, expr))
+                all_matches     = list(re.finditer(mapvar_pattern, expr))
 
                 for match in all_matches:
                     x_num   = match.group(1)    # Which X variable
@@ -658,10 +673,10 @@ class FileAndLogging:
 
                 def replace_dep(match):
                     dep_path    = match.group(0)
-                    dep_parts   = dp.re.findall(r"\[['\"](.*?)['\"]\]", dep_path)
+                    dep_parts   = re.findall(r"\[['\"](.*?)['\"]\]", dep_path)
                     return 'simStruct.ModelVars.' + '.'.join(dep_parts)
 
-                expr = dp.re.sub(dep_pattern, replace_dep, expr)
+                expr = re.sub(dep_pattern, replace_dep, expr)
 
                 # Save the final mapping in the dictionary with sequential key
                 mappings[mapping_counter]    = f"{octave_path} = {expr}"
@@ -671,7 +686,7 @@ class FileAndLogging:
 
             else:
                 mapvar_pattern  = r"mapVars\[X(\d+)\](?:\[(\d+)\])?"
-                all_matches     = list(dp.re.finditer(mapvar_pattern, right))
+                all_matches     = list(re.finditer(mapvar_pattern, right))
 
                 if not all_matches  : continue  # Skip if no mapVars found
 
@@ -790,8 +805,8 @@ class FileAndLogging:
             pattern                     =   rf'({plecs_key}\s+)(".*?"|\S+)'
             replacement                 =   rf'\g<1>{formatted}'
 
-            if dp.re.search(pattern, content):
-                content     = dp.re.sub(pattern, replacement, content)
+            if re.search(pattern, content):
+                content     = re.sub(pattern, replacement, content)
             else:
                 print("solver parameter not found in model ")
 
@@ -812,16 +827,16 @@ class FileAndLogging:
         empty_script_pattern = r'Script\s*{\s*Name\s+"Script"\s*Script\s+""\s*}'
 
         # Search for empty script pattern in the content
-        if dp.re.search(empty_script_pattern, content, dp.re.DOTALL):
+        if re.search(empty_script_pattern, content, re.DOTALL):
 
             # Replace the empty script section with the new populated script section
-            new_content = dp.re.sub(empty_script_pattern, new_script_section, content, flags=dp.re.DOTALL)
+            new_content = re.sub(empty_script_pattern, new_script_section, content, flags=re.DOTALL)
 
         # CASE 2: Check for any existing script section
-        elif dp.re.search(r'Script\s*{.*?}', content, dp.re.DOTALL):
+        elif re.search(r'Script\s*{.*?}', content, re.DOTALL):
 
             # Find all script sections in the content
-            script_sections = list(dp.re.finditer(r'Script\s*{.*?}', content, dp.re.DOTALL))
+            script_sections = list(re.finditer(r'Script\s*{.*?}', content, re.DOTALL))
 
             # Get the last script section found
             last_script     = script_sections[-1]

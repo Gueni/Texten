@@ -7,9 +7,11 @@
 #?                                 |_||_|  \__,_|\___|_|\_\__,_|_.__/|_|\___|____/|_|\___|\__|
 #?
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-import assets.Dependencies as dp
+import collections
+import contextlib
+import copy
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-class TrackableDict(dp.collections.OrderedDict):
+class TrackableDict(collections.OrderedDict):
     """
     A dictionary that tracks assignments to its values, including nested dictionaries.
 
@@ -42,7 +44,7 @@ class TrackableDict(dp.collections.OrderedDict):
             **kwargs                                    : Keyword arguments passed to dict constructor
         """
         super().__init__()
-        self._assignments       = dp.collections.OrderedDict()  # Stores tracked assignments: {path: value}
+        self._assignments       = collections.OrderedDict()  # Stores tracked assignments: {path: value}
         self._tracking_enabled  = False                         # Disable tracking during initialization
         self._parent            = _parent                       # Reference to parent dictionary
         self._parent_path       = _parent_path or []            # Path from root to this node
@@ -69,7 +71,7 @@ class TrackableDict(dp.collections.OrderedDict):
         """
 
         # Convert regular mappings to TrackableDict
-        if isinstance(value, dp.collections.abc.Mapping) and not isinstance(value, TrackableDict):
+        if isinstance(value, collections.abc.Mapping) and not isinstance(value, TrackableDict):
 
             # Create new TrackableDict with proper parent reference and path
             new_td                      =   TrackableDict(_parent=self, _parent_path=self._parent_path + [key])
@@ -82,7 +84,7 @@ class TrackableDict(dp.collections.OrderedDict):
 
             for i, item in enumerate(value):
 
-                if isinstance(item, dp.collections.abc.Mapping) and not isinstance(item, TrackableDict):
+                if isinstance(item, collections.abc.Mapping) and not isinstance(item, TrackableDict):
 
                     # Convert dictionaries within sequences to TrackableDict
                     new_td                      =   TrackableDict(_parent=self, _parent_path=self._parent_path + [key, f"[{i}]"])
@@ -143,7 +145,7 @@ class TrackableDict(dp.collections.OrderedDict):
             The original value or a converted TrackableDict
         """
 
-        if isinstance(value, dp.collections.abc.Mapping) and not isinstance(value, TrackableDict):
+        if isinstance(value, collections.abc.Mapping) and not isinstance(value, TrackableDict):
             # Convert regular dict to TrackableDict with proper parent reference
             new_td                      =   TrackableDict(_parent=self, _parent_path=path)
             for k, v in value.items()   :   new_td[k] = self._convert_value(v, path + [k])
@@ -154,7 +156,7 @@ class TrackableDict(dp.collections.OrderedDict):
             new_seq     = []
             for i, item in enumerate(value):
 
-                if isinstance(item, dp.collections.abc.Mapping) and not isinstance(item, TrackableDict):
+                if isinstance(item, collections.abc.Mapping) and not isinstance(item, TrackableDict):
                     new_td                      =   TrackableDict(_parent=self, _parent_path=path + [f"[{i}]"])
                     for k, v in item.items()    :   new_td[k] = self._convert_value(v, path + [f"[{i}]", k])
                     new_seq.append(new_td)
@@ -208,7 +210,7 @@ class TrackableDict(dp.collections.OrderedDict):
         """
 
         # Start with current level assignments
-        all_assignments = dp.collections.OrderedDict(self._assignments)
+        all_assignments = collections.OrderedDict(self._assignments)
 
         # Recursively collect assignments from nested TrackableDicts
         for key, value in self.items():
@@ -259,7 +261,7 @@ class TrackableDict(dp.collections.OrderedDict):
         for value in self.values():
             if isinstance(value, TrackableDict) :   value.disable_tracking()
 
-    @dp.contextlib.contextmanager
+    @contextlib.contextmanager
     def track_scope(self):
         """
         Context manager for scoped assignment tracking.
@@ -277,7 +279,7 @@ class TrackableDict(dp.collections.OrderedDict):
         """
 
         # Store current state before entering the scope
-        original_assignments        = dp.copy.deepcopy(self._assignments)
+        original_assignments        = copy.deepcopy(self._assignments)
         original_tracking_state     = self._tracking_enabled
 
         # Prepare for scoped tracking
@@ -291,7 +293,7 @@ class TrackableDict(dp.collections.OrderedDict):
         finally:
             # This block executes when exiting the 'with' block
             # Get assignments made during the scope
-            scope_assignments       = dp.copy.deepcopy(self.assignments)
+            scope_assignments       = copy.deepcopy(self.assignments)
 
             # Restore original state
             self.disable_tracking()

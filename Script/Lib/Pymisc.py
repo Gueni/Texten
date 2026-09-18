@@ -7,7 +7,7 @@
 #?                                               |_|  |_|_|___/\___\___|_|_|\__,_|_| |_|\___|\___/ \__,_|___/
 #?
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-import assets.Dependencies as dp
+import time
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 class Misc :
     def __init__(self):
@@ -25,10 +25,10 @@ class Misc :
         # initialize time variables
         # and yield the time difference
         ti = 0
-        tf = dp.time.time()
+        tf = time.time()
         while True:
             ti = tf
-            tf = dp.time.time()
+            tf = time.time()
             yield tf-ti
 
     def toc(self,tempBool=True):

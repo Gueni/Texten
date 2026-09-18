@@ -1,8 +1,15 @@
 
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-import assets.Dependencies as dp
+from rich.console import Console
+from rich.panel import Panel
+import contextlib
+import functools
+import os
+import sys
+import traceback
+import  assets.Dependencies         as        dp
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-error_log = (dp.os.getcwd()).replace("\\","/") + "/Script/" + "D".upper() + "ata/Log/" + "error_log.log"
+error_log = (os.getcwd()).replace("\\","/") + "/Script/" + "D".upper() + "ata/Log/" + "error_log.log"
 
 with open(error_log , "w"):pass
 
@@ -10,12 +17,12 @@ def suppress_tracebacks_to_file(exc_type, exc_value, exc_traceback):
     with open(error_log, "w", encoding="utf-8") as f:
         f.write("="*40 + " Unhandled Exception " + "="*40 +"\n")
         f.write("*" * 80 + "\n")
-        dp.traceback.print_exception(exc_type, exc_value, exc_traceback, file=f)
+        traceback.print_exception(exc_type, exc_value, exc_traceback, file=f)
         f.write("*" * 80 + "\n")
         f.write("\n")
 
-dp.sys.excepthook   = suppress_tracebacks_to_file
-console             = dp.Console()
+sys.excepthook   = suppress_tracebacks_to_file
+console             = Console()
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 class ErrorHint:
     def __init__(self):
@@ -38,7 +45,7 @@ def hint(message):
     def decorator(func):
         func._hint_message = message
 
-        @dp.functools.wraps(func)
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             self_obj = args[0] if args else None
             if self_obj and hasattr(self_obj, 'hint'):
@@ -49,7 +56,7 @@ def hint(message):
 
 def safe_function(func):
     """Wraps a function with error handling and hint display."""
-    @dp.functools.wraps(func)
+    @functools.wraps(func)
     def wrapper(*args, **kwargs):
         self_obj = args[0] if args else None
 
@@ -64,7 +71,7 @@ def safe_function(func):
 
             # Always show Rich panel for user clarity
             if custom_message and not self_obj.hint.was_shown(func.__name__, custom_message):
-                console.print(dp.Panel.fit(
+                console.print(Panel.fit(
                     f"[white]{custom_message}[/white]",
                     title=f"[bright_red]Exception in {func.__name__}[/bright_red]",
                     border_style="red",
@@ -79,12 +86,12 @@ def safe_function(func):
 
             # Always log the error quietly
             with open(error_log, "a", encoding="utf-8") as f:
-                dp.traceback.print_exception(type(e), e, e.__traceback__, file=f)
+                traceback.print_exception(type(e), e, e.__traceback__, file=f)
                 f.write("\n")
 
             # If we’re inside a user try/except, re-raise
             # otherwise, swallow it to keep program running
-            exc_type, _, _ = dp.sys.exc_info()
+            exc_type, _, _ = sys.exc_info()
             if exc_type and dp.flag:
                 # inside a user try/except, re-raise normally
                 raise
@@ -124,7 +131,7 @@ def safe_class():
     return decorator
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-@dp.contextlib.contextmanager
+@contextlib.contextmanager
 def allow_exceptions():
     """Temporarily allow exceptions to propagate through the error handler."""
     original_flag = getattr(dp, 'flag', False)

@@ -7,6 +7,16 @@
 #?                                      |____/|_|_| |_| |_|\__,_|_|\__,_|\__|_|\___/|_| |_|\___/ \__|_|_|___/
 #?
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
+from deprecated import deprecated
+import flatdict
+import json
+import multiprocessing
+import numpy as np
+import os
+import pandas as pd
+import assets.Mapping.plecs_mapping as pmap
+import random
+import unflatten
 import  assets.Dependencies         as        dp
 import  Lib.Data_Process            as        PP
 
@@ -65,7 +75,7 @@ class SimulationUtils:
         """
 
         # Compare the desired number of threads with the available CPU cores
-        return min(dp.multiprocessing.cpu_count(), desired_threads)
+        return min(multiprocessing.cpu_count(), desired_threads)
 
     def paralellThreads(self,Threads,Iterations):
         """
@@ -124,7 +134,7 @@ class SimulationUtils:
     #? Tolerances & Perturbations
     #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    @dp.deprecated(reason="Candidate for remove")
+    @deprecated(reason="Candidate for remove")
     def sweepTolerances(self,misc,Comps,Tols,OptStruct,Thread,Config=0,rand=False):
         """Applies tolerance adjustments to specified components in an optimization structure.
 
@@ -150,7 +160,7 @@ class SimulationUtils:
                 if (rand):
                     randMin                     =   Tols[i][0]
                     randMax                     =   Tols[i][1]
-                    randError	                =	dp.random.SystemRandom().uniform(randMin,randMax)
+                    randError	                =	random.SystemRandom().uniform(randMin,randMax)
                     misc.update_dict_value(OptStruct[Thread]['ModelVars'], Comps[i], randError)
                 else:
                     misc.update_dict_value(OptStruct[Thread]['ModelVars'], Comps[i], Tols[i])
@@ -174,18 +184,18 @@ class SimulationUtils:
         #* If rand is True, random tolerance values within specified ranges are applied.
         #* Otherwise, fixed tolerance values are used.
         if (Config):
-            ModelVars_Flat      =   dp.flatdict.FlatDict(mdlVars, delimiter='.')
+            ModelVars_Flat      =   flatdict.FlatDict(mdlVars, delimiter='.')
 
             for i in range(len(Comps)):
                 if (rand):
                     randMin                     =  -Tols[i]
                     randMax                     =   Tols[i]
-                    randError	                =	dp.random.SystemRandom().uniform(randMin,randMax)
+                    randError	                =	random.SystemRandom().uniform(randMin,randMax)
                     ModelVars_Flat[Comps[i]]    =   ModelVars_Flat[Comps[i]] + ModelVars_Flat[Comps[i]]*randError
                 else:
                     ModelVars_Flat[Comps[i]]    =   ModelVars_Flat[Comps[i]] + ModelVars_Flat[Comps[i]]*Tols[i]
 
-            ModelVars_Unflat    =   dp.unflatten.unflatten(ModelVars_Flat)
+            ModelVars_Unflat    =   unflatten.unflatten(ModelVars_Flat)
             return ModelVars_Unflat
 
         else:
@@ -280,17 +290,17 @@ class SimulationUtils:
         #* If multiple threads are used and parallel processing is enabled without a crash,
         #* access the specific element in optstruct using index l.
         if (Threads >= 1 and dp.JSON['parallel'] and not crash):
-                res_list                        = dp.pmap.return_resistances(optstruct[l])
+                res_list                        = pmap.return_resistances(optstruct[l])
                 P_aux                           = optstruct[l]['ModelVars']['Common']['Thermal']['Paux']
 
         #* If a crash has occurred, access the first element of optstruct.
         elif (crash):
-                res_list                        = dp.pmap.return_resistances(optstruct[0])
+                res_list                        = pmap.return_resistances(optstruct[0])
                 P_aux                           = optstruct[0]['ModelVars']['Common']['Thermal']['Paux']
 
         #* If single-threaded or not parallel, access the first element of optstruct.
         else:
-                res_list                        = dp.pmap.return_resistances(optstruct)
+                res_list                        = pmap.return_resistances(optstruct)
                 P_aux                           = optstruct['ModelVars']['Common']['Thermal']['Paux']
 
         #* Return the list of resistances and auxiliary power.
@@ -347,11 +357,11 @@ class SimulationUtils:
                 self.process_ctx.res_list       = res_list
             else:
                 dp.standalone_exist             = True
-                dp.os.makedirs(fileLog.resultfolder + "/HEADERS", exist_ok = True)
-                dp.json.dump(dp.std_headers, open(f"{fileLog.resultfolder}/HEADERS/headers.json","w" ,encoding = "utf-8"))
+                os.makedirs(fileLog.resultfolder + "/HEADERS", exist_ok = True)
+                json.dump(dp.std_headers, open(f"{fileLog.resultfolder}/HEADERS/headers.json","w" ,encoding = "utf-8"))
 
-            nestedresults                       = dp.np.array(self.postProcessing.norm_results_csv(self.inputContext.data))
-            self.process_ctx.raw_data           = dp.np.array([dp.np.array(subarr,dtype = dp.np.float64)[~dp.pd.isnull(dp.np.array(subarr))] for subarr in nestedresults])
+            nestedresults                       = np.array(self.postProcessing.norm_results_csv(self.inputContext.data))
+            self.process_ctx.raw_data           = np.array([np.array(subarr,dtype = np.float64)[~pd.isnull(np.array(subarr))] for subarr in nestedresults])
             self.process_ctx.thread_index       = l+sum(self.threads_vector[0:itr]) if dp.JSON['hierarchical'] else l+itr*simutil.Threads
 
             self.processor.process(self.process_ctx)
