@@ -1,4 +1,3 @@
-
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 #?												  ____  _     _____ ____ ____    __  __                   _
 #?												 |  _ \| |   | ____/ ___/ ___|  |  \/  | __ _ _ __  _ __ (_)_ __   __ _
@@ -7,7 +6,15 @@
 #?												 |_|   |_____|_____\____|____/  |_|  |_|\__,_| .__/| .__/|_|_| |_|\__, |
 #?												                                             |_|   |_|            |___/
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-import assets.Dependencies as dp
+import  collections
+import  copy
+import  functools
+import  json
+import  pathlib
+import  sys
+
+import  numpy               as np
+import  assets.Dependencies as dp
 
 
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -35,7 +42,7 @@ Maps_index 			= {
 						}
 
 # Lambda function to delete multiple segments at once from any given list like raw mapping
-delete_segments     = lambda arr, seglen, segdel: dp.np.delete(dp.np.array(arr),dp.np.hstack([dp.np.r_[dp.np.cumsum([0]+seglen[:-1])[i] : dp.np.cumsum([0]+seglen[:-1])[i] + seglen[i]] for i in segdel])).tolist()
+delete_segments     = lambda arr, seglen, segdel: np.delete(np.array(arr),np.hstack([np.r_[np.cumsum([0]+seglen[:-1])[i] : np.cumsum([0]+seglen[:-1])[i] + seglen[i]] for i in segdel])).tolist()
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 def gen_pmap_plt(Ctrl_plt,pmap_plt):
     """
@@ -45,7 +52,7 @@ def gen_pmap_plt(Ctrl_plt,pmap_plt):
         Ctrl_plt (list): list of controller mappings
         pmap_plt (list): list of mappings
     """
-    pmap_plt_dict , pmap_plt_ctrl_dict	=	dp.collections.OrderedDict(),dp.collections.OrderedDict()
+    pmap_plt_dict , pmap_plt_ctrl_dict	=	collections.OrderedDict(),collections.OrderedDict()
 
     match dp.JSON['model']:
         case 'DCDC_S':
@@ -119,7 +126,7 @@ def gen_pmap_plt(Ctrl_plt,pmap_plt):
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------
         case _:				# Default Case
             print("ModelVar Value Error : dp.Config Value Error !")
-            dp.sys.exit()
+            sys.exit()
         #------------------------------------------------------------------------------------------------------------------------------------------------------------------
     return	pmap_plt_dict,pmap_plt_ctrl_dict
 
@@ -233,9 +240,9 @@ def return_resistances(op_dict):
 
         case _:  # Invalid configuration
             print("Resistances Value Error : Resistances Value Error!")
-            dp.sys.exit()
+            sys.exit()
 
-    return dp.np.array(dp.Resistances)
+    return np.array(dp.Resistances)
 
 def tofile_map_gen(mapping_Raw, lengths):
     """
@@ -254,14 +261,14 @@ def tofile_map_gen(mapping_Raw, lengths):
     Maps_names 				= ["Peak_Currents", "Peak_Voltages", "Dissipations", "Elec_Stats", "Temps", "Thermal_Stats", "Controls"]
 
 	# Initialize ordered dictionaries for mappings
-    Tofile_mapping_multiple = dp.collections.OrderedDict()
+    Tofile_mapping_multiple = collections.OrderedDict()
 
     for i in range(1, len(lengths)):
 		# Extract segment from raw mapping data
-        segment 									= dp.copy.deepcopy(mapping_Raw[c + 1:lengths[i] + c + 1])
+        segment 									= copy.deepcopy(mapping_Raw[c + 1:lengths[i] + c + 1])
 
         # Create mapping with continuous indexing for multiple dictionary
-        Tofile_mapping_multiple[Maps_names[i - 1]] 	= dp.collections.OrderedDict(zip(segment, range(idx_shift, len(segment) + idx_shift)))
+        Tofile_mapping_multiple[Maps_names[i - 1]] 	= collections.OrderedDict(zip(segment, range(idx_shift, len(segment) + idx_shift)))
 
 		# Update counters for next segment
         c 			+= lengths[i]
@@ -292,7 +299,7 @@ def dump_headers(raw_dict, names,Ycumsum,YLcumsum,segments,segments_idx):
     with open(dp.Header_File, 'w') as f:
         f.write('[\n')
         for i, item in enumerate(ts_header):
-            dp.json.dump(item, f)
+            json.dump(item, f)
             if i < len(ts_header) - 1:
                 f.write(',')
             f.write('\n')
@@ -323,7 +330,7 @@ def dump_headers(raw_dict, names,Ycumsum,YLcumsum,segments,segments_idx):
     sublists 		= [(add_str(raw_dict[s], suf), l) for s, suf, l in zip(slices, suffixes, lengths)]
 
 	# Build temporary dictionary by inserting processed segments at specified positions
-    temp_raw_dict 	= dp.functools.reduce(lambda acc, x: dp.np.insert(acc, x[1], dp.np.array(x[0])), sublists, dp.copy.copy(dp.np.array(raw_dict))).tolist()
+    temp_raw_dict 	= functools.reduce(lambda acc, x: np.insert(acc, x[1], np.array(x[0])), sublists, copy.copy(np.array(raw_dict))).tolist()
 
     # Save each data category to separate JSON files with each element on new line
     for i, length in enumerate(dp.Y_Length[1:], 1):
@@ -336,7 +343,7 @@ def dump_headers(raw_dict, names,Ycumsum,YLcumsum,segments,segments_idx):
             segment_data = temp_raw_dict[c+1:c+1+length]
             for j, item in enumerate(segment_data):
                 file.write('  ')
-                dp.json.dump(item, file)
+                json.dump(item, file)
                 if j < len(segment_data) - 1:
                     file.write(',')
                 file.write('\n')
@@ -352,20 +359,20 @@ def select_mapping():
     """
     # initialize mapping parameters
     if dp.JSON["model"] == 'DCDC_S' or dp.JSON['model'] == 'DCDC_D':
-        dp.mode      = dp.pmap.Maps_index['DCDC_data_mat'][0]
-        dp.map_index = dp.pmap.Maps_index['DCDC_data_mat'][1]
-        dp.map_names = dp.pmap.Maps_index['DCDC_map_names']
+        dp.mode      = Maps_index['DCDC_data_mat'][0]
+        dp.map_index = Maps_index['DCDC_data_mat'][1]
+        dp.map_names = Maps_index['DCDC_map_names']
 
     elif not dp.JSON["model"]: #standalone case
-        dp.mode      = dp.pmap.Maps_index['Standalone_data_mat'][0]
-        dp.map_index = dp.pmap.Maps_index['Standalone_data_mat'][1]
-        dp.map_names = dp.pmap.Maps_index['Standalone_map_names']
+        dp.mode      = Maps_index['Standalone_data_mat'][0]
+        dp.map_index = Maps_index['Standalone_data_mat'][1]
+        dp.map_names = Maps_index['Standalone_map_names']
 
     else:
         raise NameError(dp.JSON['model'])
 
     # define lambda local function for fetching and loading json files for raw mappings
-    load_json        = lambda subdir, name: dp.json.load(open(f"{dp.pathlib.Path.cwd()}/Script/assets/Mapping/{subdir}/{name}"))
+    load_json        = lambda subdir, name: json.load(open(f"{pathlib.Path.cwd()}/Script/assets/Mapping/{subdir}/{name}"))
 
     match dp.JSON['model']:
         case 'DCDC_S'	:
@@ -384,9 +391,9 @@ def select_mapping():
             dp.Y_list              		=  [1,77,69,25,15,18,167]
 
             # Calculate cumulative sums for data partitioning
-            Ycumsum     		        = dp.np.cumsum(dp.Y_list)
+            Ycumsum     		        = np.cumsum(dp.Y_list)
             dp.Ycumsum                  = Ycumsum
-            YLcumsum    		        = dp.np.cumsum(dp.Y_Length)
+            YLcumsum    		        = np.cumsum(dp.Y_Length)
             dp.YLcumsum                 = YLcumsum
 
             # Output power Index in Electstat maps.
@@ -410,18 +417,18 @@ def select_mapping():
             DCDC_pmap_Raw               = delete_segments(DCDC_pmap_Raw, dp.segments, [3, 6])
 
 			# Generate DCDC mapping dicts normal mapping and multiplots mapping.
-            dp.pmapping 				= dp.collections.OrderedDict(zip(DCDC_pmap_Raw, range(0, len(DCDC_pmap_Raw))))
+            dp.pmapping 				= collections.OrderedDict(zip(DCDC_pmap_Raw, range(0, len(DCDC_pmap_Raw))))
             dp.pmap_multi	            = tofile_map_gen(DCDC_pmap_Raw,dp.Y_list)
 
 			# Generate PWM dictionary from specific slice of the mapping
             pwm_slice 					= DCDC_pmap_Raw[DCDC_pmap_Raw.index("PWM Modulator Primary PWM Outputs S1"):DCDC_pmap_Raw.index("PWM Modulator Auxiliary PWM Outputs Sdis")]
-            dp.pwm_dict 				= dp.collections.OrderedDict(zip(pwm_slice, map(DCDC_pmap_Raw.index, pwm_slice)))
+            dp.pwm_dict 				= collections.OrderedDict(zip(pwm_slice, map(DCDC_pmap_Raw.index, pwm_slice)))
 
 			# Generate html plots mapping dict & ctrls mapping.
             dp.pmap_plt,dp.pmap_plt_ctrl= gen_pmap_plt(DCDC_Ctrl_plt, DCDC_pmap_plt)
 
 			# Generate constants dictionary
-            dp.constant_dict 			= dp.collections.OrderedDict((sub[0], [sub[0], dp.pmapping[sub[0]], sub[1]]) for sub in DCDC_Constants)
+            dp.constant_dict 			= collections.OrderedDict((sub[0], [sub[0], dp.pmapping[sub[0]], sub[1]]) for sub in DCDC_Constants)
 
 			# Set plot title list and index range for..
             dp.plt_title_list  			= DCDC_pmap_plt
@@ -442,9 +449,9 @@ def select_mapping():
             dp.Y_list              		=  [1,136,120,1,17,1,327]
 
             # Calculate cumulative sums for data partitioning
-            Ycumsum     		        = dp.np.cumsum(dp.Y_list)
+            Ycumsum     		        = np.cumsum(dp.Y_list)
             dp.Ycumsum                  = Ycumsum
-            YLcumsum    		        = dp.np.cumsum(dp.Y_Length)
+            YLcumsum    		        = np.cumsum(dp.Y_Length)
             dp.YLcumsum                 = YLcumsum
 
 			# Output power Index in Electstat maps.
@@ -468,18 +475,18 @@ def select_mapping():
             DCDC_DUAL_pmap_Raw = delete_segments(DCDC_DUAL_pmap_Raw, dp.segments, [3,6])
 
 			# Generate DCDC mapping dicts both for 3D and multiple plots.
-            dp.pmapping 				= dp.collections.OrderedDict(zip(DCDC_DUAL_pmap_Raw, range(0, len(DCDC_DUAL_pmap_Raw))))
+            dp.pmapping 				= collections.OrderedDict(zip(DCDC_DUAL_pmap_Raw, range(0, len(DCDC_DUAL_pmap_Raw))))
             dp.pmap_multi	            = tofile_map_gen(DCDC_DUAL_pmap_Raw,dp.Y_list)
 
 			# Generate PWM dictionary from specific slice of the mapping
             pwm_slice 					= DCDC_DUAL_pmap_Raw[DCDC_DUAL_pmap_Raw.index("PWM Modulator Carrier Waveforms 1 Rail 1"):DCDC_DUAL_pmap_Raw.index("PWM Modulator Auxiliary PWM Outputs Sdis Rail 2")]
-            dp.pwm_dict 				= dp.collections.OrderedDict(zip(pwm_slice, map(DCDC_DUAL_pmap_Raw.index, pwm_slice)))
+            dp.pwm_dict 				= collections.OrderedDict(zip(pwm_slice, map(DCDC_DUAL_pmap_Raw.index, pwm_slice)))
 
 			# Generate DCDC html plots mapping dict & ctrls mapping.
             dp.pmap_plt,dp.pmap_plt_ctrl= gen_pmap_plt(DCDC_DUAL_Ctrl_plt, DCDC_DUAL_pmap_plt)
 
 			# Generate constant dictionary
-            dp.constant_dict 			= dp.collections.OrderedDict((sub[0], [sub[0], dp.pmapping[sub[0]], sub[1]]) for sub in DCDC_DUAL_Constants)
+            dp.constant_dict 			= collections.OrderedDict((sub[0], [sub[0], dp.pmapping[sub[0]], sub[1]]) for sub in DCDC_DUAL_Constants)
 
 			# Set plot title list and index range for
             dp.plt_title_list  			= DCDC_DUAL_pmap_plt
@@ -490,5 +497,5 @@ def select_mapping():
 		#------------------------------------------------------------------------------------------------------------------------------------------------------------------
         case _			:	#? Default Case
             print("ModelVar Value Error : model Value Error ! ")
-            dp.sys.exit()
+            sys.exit()
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
