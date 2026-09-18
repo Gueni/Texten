@@ -12,12 +12,16 @@
 #!   Do not modify the values in this file.
 #!----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-import 	assets.Dependencies 		as 		  dp
-import  Lib.Data_Process            as        PP
+import  copy
+import  numpy                      as        np
+import  random
+import 	assets.Components.Mags_Dicts	    as 	Mags_Dicts
+import 	assets.Components.OpAmps_Dicts	    as 	OpAmps_Dicts
+import  Lib.Param_Process            as        PM
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#! Call the Post-Processing class and point to the location of csv data
-postProcessing 		=	PP.Processing()
+#! Call the Params-Processing class and point to the location of csv data
+paramProcess 		=	PM.ParamProcess()
 sensorsPath			=	'Script/Data/Sensors_Errors/'
 opampImpedancePath	=   'Script/Data/OpAmp_Impedance/'
 
@@ -28,10 +32,10 @@ randMax				=	 1e6
 #! Voltage Sensors models parameters
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-randError	=	dp.random.SystemRandom().randint(randMin, randMax)
-randNoise	=	dp.random.SystemRandom().randint(randMin, randMax)
+randError	=	random.SystemRandom().randint(randMin, randMax)
+randNoise	=	random.SystemRandom().randint(randMin, randMax)
 sensor 		= 	sensorsPath + 'Si8932D_Error'
-error		=	postProcessing.extractArrays(sensor)
+error		=	paramProcess.extractArrays(sensor)
 #impedance  =   paramProcess.outputImpedanceMatching(opampImpedancePath, 'Ideal')
 
 SI8932D				=	{																																	#*	generic SI8932D voltage sensor model
@@ -61,7 +65,7 @@ SI8932D				=	{																																	#*	generic SI8932D voltage sensor
                                     },
                             },
 							'BuffOpAmp'				:   {																									#!	buffer amplifier parameters
-                                							'OpAmp'				: dp.copy.deepcopy(dp.OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
+                                							'OpAmp'				: copy.deepcopy(OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
 															'Rf'				: 10e3																	,	#?	opamp feedback resistance
                                 							'Av'				: 1																		,	#?	amplifier gain
 														},
@@ -71,7 +75,7 @@ SI8932D				=	{																																	#*	generic SI8932D voltage sensor
 															'Cf'				: 820e-12+4.7e-9															#?	filter capacitance
 														},
                             'Model' 				:	{																									#*	frequency behavior model as 3-stage Sallen-Key filter
-									'OpAmp'										: dp.copy.deepcopy(dp.OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
+									'OpAmp'										: copy.deepcopy(OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
 									'FirstStage'			:	{																							#!	first filter parameters
 																'R1'			: 23.446																,	#?	first resistor
 																'C1'			: 10e-9																	,	#?	first capacitor
@@ -118,12 +122,12 @@ SI8932D				=	{																																	#*	generic SI8932D voltage sensor
 									'SampleTime'								: 10e-6																	,	#?	random polarity sample time
 									'Digital'	:	{																										#!	digital error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
+															'ErrVec'			: ((np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
                                     'Analog'	:	{																										#!	analog error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
+															'ErrVec'			: ((np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
 														},
@@ -157,10 +161,10 @@ SI8932D				=	{																																	#*	generic SI8932D voltage sensor
 
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-randError	=	dp.random.SystemRandom().randint(randMin, randMax)
-randNoise	=	dp.random.SystemRandom().randint(randMin, randMax)
+randError	=	random.SystemRandom().randint(randMin, randMax)
+randNoise	=	random.SystemRandom().randint(randMin, randMax)
 sensor 		= 	sensorsPath + 'BuffDivider_1_Error'
-error		=	postProcessing.extractArrays(sensor)
+error		=	paramProcess.extractArrays(sensor)
 #impedance  =   paramProcess.outputImpedanceMatching(opampImpedancePath, 'Ideal')
 
 BuffDivider_1		=	{																																	#*	voltage divider model
@@ -193,7 +197,7 @@ BuffDivider_1		=	{																																	#*	voltage divider model
                                     },
                             },
 							'BuffOpAmp'				:   {																									#!	buffer amplifier parameters
-                                							'OpAmp'				: dp.copy.deepcopy(dp.OpAmps_Dicts.TLV316)								,	#?	opamp model parameters
+                                							'OpAmp'				: copy.deepcopy(OpAmps_Dicts.TLV316)								,	#?	opamp model parameters
 															'Rf'				: 10e3																	,	#?	opamp feedback resistance
                                 							'Av'				: 1																		,	#?	amplifier gain
 														},
@@ -208,12 +212,12 @@ BuffDivider_1		=	{																																	#*	voltage divider model
 									'SampleTime'								: 10e-6																	,	#?	random polarity sample time
 									'Digital'	:	{																										#!	digital error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
+															'ErrVec'			: ((np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
                                     'Analog'	:	{																										#!	analog error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
+															'ErrVec'			: ((np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
 														},
@@ -257,10 +261,10 @@ BuffDivider_1		=	{																																	#*	voltage divider model
 
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-randError	=	dp.random.SystemRandom().randint(randMin, randMax)
-randNoise	=	dp.random.SystemRandom().randint(randMin, randMax)
+randError	=	random.SystemRandom().randint(randMin, randMax)
+randNoise	=	random.SystemRandom().randint(randMin, randMax)
 sensor 		= 	sensorsPath + 'BuffDivider_2_Error'
-error		=	postProcessing.extractArrays(sensor)
+error		=	paramProcess.extractArrays(sensor)
 #impedance  =   paramProcess.outputImpedanceMatching(opampImpedancePath, 'Ideal')
 
 BuffDivider_2		=	{																																	#*	voltage divider model
@@ -293,7 +297,7 @@ BuffDivider_2		=	{																																	#*	voltage divider model
                                     },
                             },
 							'BuffOpAmp'				:   {																									#!	buffer amplifier parameters
-                                							'OpAmp'				: dp.copy.deepcopy(dp.OpAmps_Dicts.TLV316)								,	#?	opamp model parameters
+                                							'OpAmp'				: copy.deepcopy(OpAmps_Dicts.TLV316)								,	#?	opamp model parameters
 															'Rf'				: 10e3																	,	#?	opamp feedback resistance
                                 							'Av'				: 1																		,	#?	amplifier gain
 														},
@@ -308,12 +312,12 @@ BuffDivider_2		=	{																																	#*	voltage divider model
 									'SampleTime'								: 10e-6																	,	#?	random polarity sample time
 									'Digital'	:	{																										#!	digital error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
+															'ErrVec'			: ((np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
                                     'Analog'	:	{																										#!	analog error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
+															'ErrVec'			: ((np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
 														},
@@ -357,10 +361,10 @@ BuffDivider_2		=	{																																	#*	voltage divider model
 
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-randError	=	dp.random.SystemRandom().randint(randMin, randMax)
-randNoise	=	dp.random.SystemRandom().randint(randMin, randMax)
+randError	=	random.SystemRandom().randint(randMin, randMax)
+randNoise	=	random.SystemRandom().randint(randMin, randMax)
 sensor 		= 	sensorsPath + 'BuffDivider_3_Error'
-error		=	postProcessing.extractArrays(sensor)
+error		=	paramProcess.extractArrays(sensor)
 #impedance  =   paramProcess.outputImpedanceMatching(opampImpedancePath, 'Ideal')
 
 BuffDivider_3		=	{																																	#*	voltage divider model
@@ -393,7 +397,7 @@ BuffDivider_3		=	{																																	#*	voltage divider model
                                     },
                             },
 							'BuffOpAmp'				:   {																									#!	buffer amplifier parameters
-                                							'OpAmp'				: dp.copy.deepcopy(dp.OpAmps_Dicts.TLV316)								,	#?	opamp model parameters
+                                							'OpAmp'				: copy.deepcopy(OpAmps_Dicts.TLV316)								,	#?	opamp model parameters
 															'Rf'				: 10e3																	,	#?	opamp feedback resistance
                                 							'Av'				: 1																		,	#?	amplifier gain
 														},
@@ -408,12 +412,12 @@ BuffDivider_3		=	{																																	#*	voltage divider model
 									'SampleTime'								: 10e-6																	,	#?	random polarity sample time
 									'Digital'	:	{																										#!	digital error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
+															'ErrVec'			: ((np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
                                     'Analog'	:	{																										#!	analog error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
+															'ErrVec'			: ((np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
 														},
@@ -457,10 +461,10 @@ BuffDivider_3		=	{																																	#*	voltage divider model
 
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-randError	=	dp.random.SystemRandom().randint(randMin, randMax)
-randNoise	=	dp.random.SystemRandom().randint(randMin, randMax)
+randError	=	random.SystemRandom().randint(randMin, randMax)
+randNoise	=	random.SystemRandom().randint(randMin, randMax)
 sensor 		= 	sensorsPath + 'BuffDivider_4_Error'
-error		=	postProcessing.extractArrays(sensor)
+error		=	paramProcess.extractArrays(sensor)
 #impedance  =   paramProcess.outputImpedanceMatching(opampImpedancePath, 'Ideal')
 
 BuffDivider_4		=	{																																	#*	voltage divider model
@@ -493,7 +497,7 @@ BuffDivider_4		=	{																																	#*	voltage divider model
                                     },
                             },
 							'BuffOpAmp'				:   {																									#!	buffer amplifier parameters
-                                							'OpAmp'				: dp.copy.deepcopy(dp.OpAmps_Dicts.TLV906)								,	#?	opamp model parameters
+                                							'OpAmp'				: copy.deepcopy(OpAmps_Dicts.TLV906)								,	#?	opamp model parameters
 															'Rf'				: 10e3																	,	#?	opamp feedback resistance
                                 							'Av'				: 1																		,	#?	amplifier gain
 														},
@@ -508,12 +512,12 @@ BuffDivider_4		=	{																																	#*	voltage divider model
 									'SampleTime'								: 10e-6																	,	#?	random polarity sample time
 									'Digital'	:	{																										#!	digital error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
+															'ErrVec'			: ((np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
                                     'Analog'	:	{																										#!	analog error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
+															'ErrVec'			: ((np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
 														},
@@ -558,10 +562,10 @@ BuffDivider_4		=	{																																	#*	voltage divider model
 #! Current Sensors models parameters
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-randError	=	dp.random.SystemRandom().randint(randMin, randMax)
-randNoise	=	dp.random.SystemRandom().randint(randMin, randMax)
+randError	=	random.SystemRandom().randint(randMin, randMax)
+randNoise	=	random.SystemRandom().randint(randMin, randMax)
 sensor 		= 	sensorsPath + 'INA240A2_Error'
-error		=	postProcessing.extractArrays(sensor)
+error		=	paramProcess.extractArrays(sensor)
 #impedance  =   paramProcess.outputImpedanceMatching(opampImpedancePath, 'INA240A2')
 
 INA240A2			=	{																																	#*	generic INA240A2 current sensor model
@@ -595,12 +599,12 @@ INA240A2			=	{																																	#*	generic INA240A2 current senso
 								},
                             },
 							'DiffOpAmp'				:   {																									#!	differential amplifier parameters
-                                							'OpAmp'				: dp.copy.deepcopy(dp.OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
+                                							'OpAmp'				: copy.deepcopy(OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
 															'Rf'				: 10e3																	,	#?	opamp feedback resistance
                                 							'R1'				: 10e3																	,	#?	opamp input resistance
 														},
                             'Model' 				:	{																									#*	frequency behavior model as 3-stage Sallen-Key filter
-									'OpAmp'										: dp.copy.deepcopy(dp.OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
+									'OpAmp'										: copy.deepcopy(OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
 									'FirstStage'			:	{																							#!	first filter parameters
 																'R1'			: 100.0																	,	#?	first resistor
 																'C1'			: 4.2e-9																,	#?	first capacitor
@@ -647,12 +651,12 @@ INA240A2			=	{																																	#*	generic INA240A2 current senso
 									'SampleTime'								: 10e-6																	,	#?	random polarity sample time
 									'Digital'	:	{																										#!	digital error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
+															'ErrVec'			: ((np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
                                     'Analog'	:	{																										#!	analog error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
+															'ErrVec'			: ((np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
 														},
@@ -686,10 +690,10 @@ INA240A2			=	{																																	#*	generic INA240A2 current senso
 
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-randError	=	dp.random.SystemRandom().randint(randMin, randMax)
-randNoise	=	dp.random.SystemRandom().randint(randMin, randMax)
+randError	=	random.SystemRandom().randint(randMin, randMax)
+randNoise	=	random.SystemRandom().randint(randMin, randMax)
 sensor 		= 	sensorsPath + 'INA240A1_Error'
-error		=	postProcessing.extractArrays(sensor)
+error		=	paramProcess.extractArrays(sensor)
 #impedance  =   paramProcess.outputImpedanceMatching(opampImpedancePath, 'INA240A1')
 
 INA240A1			=	{																																	#*	generic INA240A1 current sensor model
@@ -723,12 +727,12 @@ INA240A1			=	{																																	#*	generic INA240A1 current senso
 								},
                             },
 							'DiffOpAmp'				:   {																									#!	differential amplifier parameters
-                                							'OpAmp'				: dp.copy.deepcopy(dp.OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
+                                							'OpAmp'				: copy.deepcopy(OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
 															'Rf'				: 10e3																	,	#?	opamp feedback resistance
                                 							'R1'				: 10e3																	,	#?	opamp input resistance
 														},
                             'Model' 				:	{																									#*	frequency behavior model as 3-stage Sallen-Key filter
-									'OpAmp'										: dp.copy.deepcopy(dp.OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
+									'OpAmp'										: copy.deepcopy(OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
 									'FirstStage'			:	{																							#!	first filter parameters
 																'R1'			: 100.0																	,	#?	first resistor
 																'C1'			: 4.2e-9																,	#?	first capacitor
@@ -775,12 +779,12 @@ INA240A1			=	{																																	#*	generic INA240A1 current senso
 									'SampleTime'								: 10e-6																	,	#?	random polarity sample time
 									'Digital'	:	{																										#!	digital error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
+															'ErrVec'			: ((np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
                                     'Analog'	:	{																										#!	analog error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
+															'ErrVec'			: ((np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
 														},
@@ -814,10 +818,10 @@ INA240A1			=	{																																	#*	generic INA240A1 current senso
 
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-randError	=	dp.random.SystemRandom().randint(randMin, randMax)
-randNoise	=	dp.random.SystemRandom().randint(randMin, randMax)
+randError	=	random.SystemRandom().randint(randMin, randMax)
+randNoise	=	random.SystemRandom().randint(randMin, randMax)
 sensor 		= 	sensorsPath + 'AD8411A_Error'
-error		=	postProcessing.extractArrays(sensor)
+error		=	paramProcess.extractArrays(sensor)
 #impedance  =   paramProcess.outputImpedanceMatching(opampImpedancePath, 'AD8411A')
 
 AD8411A			=	{																																		#*	generic AD8411A current sensor model
@@ -851,12 +855,12 @@ AD8411A			=	{																																		#*	generic AD8411A current sensor
                                     },
                             },
 							'DiffOpAmp'				:   {																									#!	differential amplifier parameters
-                                							'OpAmp'				: dp.copy.deepcopy(dp.OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
+                                							'OpAmp'				: copy.deepcopy(OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
 															'Rf'				: 10e3																	,	#?	opamp feedback resistance
                                 							'R1'				: 10e3																	,	#?	opamp input resistance
 														},
                             'Model' 				:	{																									#*	frequency behavior model as 3-stage Sallen-Key filter
-									'OpAmp'										: dp.copy.deepcopy(dp.OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
+									'OpAmp'										: copy.deepcopy(OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
 									'FirstStage'			:	{																							#!	first filter parameters
 																'R1'			: 0.0																	,	#?	first resistor
 																'C1'			: 0.0																	,	#?	first capacitor
@@ -903,12 +907,12 @@ AD8411A			=	{																																		#*	generic AD8411A current sensor
 									'SampleTime'								: 10e-6																	,	#?	random polarity sample time
 									'Digital'	:	{																										#!	digital error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
+															'ErrVec'			: ((np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
                                     'Analog'	:	{																										#!	analog error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
+															'ErrVec'			: ((np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
 														},
@@ -942,10 +946,10 @@ AD8411A			=	{																																		#*	generic AD8411A current sensor
 
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-randError	=	dp.random.SystemRandom().randint(randMin, randMax)
-randNoise	=	dp.random.SystemRandom().randint(randMin, randMax)
+randError	=	random.SystemRandom().randint(randMin, randMax)
+randNoise	=	random.SystemRandom().randint(randMin, randMax)
 sensor 		= 	sensorsPath + 'INA296A3_Error'
-error		=	postProcessing.extractArrays(sensor)
+error		=	paramProcess.extractArrays(sensor)
 #impedance  =   paramProcess.outputImpedanceMatching(opampImpedancePath, 'INA296A3')
 
 INA296A3			=	{																																	#*	generic INA296A3 current sensor model
@@ -979,12 +983,12 @@ INA296A3			=	{																																	#*	generic INA296A3 current senso
 								},
                             },
 							'DiffOpAmp'				:   {																									#!	differential amplifier parameters
-                                							'OpAmp'				: dp.copy.deepcopy(dp.OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
+                                							'OpAmp'				: copy.deepcopy(OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
 															'Rf'				: 10e3																	,	#?	opamp feedback resistance
                                 							'R1'				: 10e3																	,	#?	opamp input resistance
 														},
                             'Model' 				:	{																									#*	frequency behavior model as 3-stage Sallen-Key filter
-									'OpAmp'										: dp.copy.deepcopy(dp.OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
+									'OpAmp'										: copy.deepcopy(OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
 									'FirstStage'			:	{																							#!	first filter parameters
 																'R1'			: 1																		,	#?	first resistor
 																'C1'			: 0																		,	#?	first capacitor
@@ -1031,12 +1035,12 @@ INA296A3			=	{																																	#*	generic INA296A3 current senso
 									'SampleTime'								: 10e-6																	,	#?	random polarity sample time
 									'Digital'	:	{																										#!	digital error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
+															'ErrVec'			: ((np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
                                     'Analog'	:	{																										#!	analog error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
+															'ErrVec'			: ((np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
 														},
@@ -1070,10 +1074,10 @@ INA296A3			=	{																																	#*	generic INA296A3 current senso
 
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-randError	=	dp.random.SystemRandom().randint(randMin, randMax)
-randNoise	=	dp.random.SystemRandom().randint(randMin, randMax)
+randError	=	random.SystemRandom().randint(randMin, randMax)
+randNoise	=	random.SystemRandom().randint(randMin, randMax)
 sensor 		= 	sensorsPath + 'ACS773_Error'
-error		=	postProcessing.extractArrays(sensor)
+error		=	paramProcess.extractArrays(sensor)
 #impedance  =   paramProcess.outputImpedanceMatching(opampImpedancePath, 'Ideal')
 
 ACS773				=	{																																	#*	generic ACS773 current sensor model
@@ -1105,12 +1109,12 @@ ACS773				=	{																																	#*	generic ACS773 current sensor m
                                     },
                             },
 							'DiffOpAmp'				:   {																									#!	differential amplifier parameters
-                                							'OpAmp'				: dp.copy.deepcopy(dp.OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
+                                							'OpAmp'				: copy.deepcopy(OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
 															'Rf'				: 10e3																	,	#?	opamp feedback resistance
                                 							'R1'				: 10e3																	,	#?	opamp input resistance
 														},
                             'Model' 				:	{																									#*	frequency behavior model as 3-stage Sallen-Key filter
-									'OpAmp'										: dp.copy.deepcopy(dp.OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
+									'OpAmp'										: copy.deepcopy(OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
 									'FirstStage'			:	{																							#!	first filter parameters
 																'R1'			: 75.0																	,	#?	first resistor
 																'C1'			: 20e-9																	,	#?	first capacitor
@@ -1157,12 +1161,12 @@ ACS773				=	{																																	#*	generic ACS773 current sensor m
 									'SampleTime'								: 10e-6																	,	#?	random polarity sample time
 									'Digital'	:	{																										#!	digital error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
+															'ErrVec'			: ((np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
                                     'Analog'	:	{																										#!	analog error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
+															'ErrVec'			: ((np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
 														},
@@ -1196,10 +1200,10 @@ ACS773				=	{																																	#*	generic ACS773 current sensor m
 
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-randError	=	dp.random.SystemRandom().randint(randMin, randMax)
-randNoise	=	dp.random.SystemRandom().randint(randMin, randMax)
+randError	=	random.SystemRandom().randint(randMin, randMax)
+randNoise	=	random.SystemRandom().randint(randMin, randMax)
 sensor 		= 	sensorsPath + 'ASC724_Error'
-error		=	postProcessing.extractArrays(sensor)
+error		=	paramProcess.extractArrays(sensor)
 #impedance  =   paramProcess.outputImpedanceMatching(opampImpedancePath, 'Ideal')
 
 ACS724				=	{																																	#*	generic ACS724 current sensor model
@@ -1231,12 +1235,12 @@ ACS724				=	{																																	#*	generic ACS724 current sensor m
                                     },
                             },
 							'DiffOpAmp'				:   {																									#!	differential amplifier parameters
-                                							'OpAmp'				: dp.copy.deepcopy(dp.OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
+                                							'OpAmp'				: copy.deepcopy(OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
 															'Rf'				: 10e3																	,	#?	opamp feedback resistance
                                 							'R1'				: 10e3																	,	#?	opamp input resistance
 														},
                             'Model' 				:	{																									#*	frequency behavior model as 3-stage Sallen-Key filter
-									'OpAmp'										: dp.copy.deepcopy(dp.OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
+									'OpAmp'										: copy.deepcopy(OpAmps_Dicts.Ideal)								,	#?	opamp model parameters
 									'FirstStage'			:	{																							#!	first filter parameters
 																'R1'			: 28.35e3																,	#?	first resistor
 																'C1'			: 10e-9																	,	#?	first capacitor
@@ -1283,12 +1287,12 @@ ACS724				=	{																																	#*	generic ACS724 current sensor m
 									'SampleTime'								: 10e-6																	,	#?	random polarity sample time
 									'Digital'	:	{																										#!	digital error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
+															'ErrVec'			: ((np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
                                     'Analog'	:	{																										#!	analog error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
+															'ErrVec'			: ((np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
 														},
@@ -1322,15 +1326,15 @@ ACS724				=	{																																	#*	generic ACS724 current sensor m
 
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-randError	=	dp.random.SystemRandom().randint(randMin, randMax)
-randNoise	=	dp.random.SystemRandom().randint(randMin, randMax)
+randError	=	random.SystemRandom().randint(randMin, randMax)
+randNoise	=	random.SystemRandom().randint(randMin, randMax)
 sensor 		= 	sensorsPath + 'DS_P100076_Error'
-error		=	postProcessing.extractArrays(sensor)
+error		=	paramProcess.extractArrays(sensor)
 
 DS_P100076			=	{																																	#*	DS_P100076 current transformer parameters
 							'Config'				:	1																								,	#?	1->physical model | 2->small-signal model | 3->ideal model | 4->disable
                             'Channel'				:   1																								,	#?	0->odd-odd or even-even | 1->even-odd or odd-even
-							'Trafo'					:	dp.copy.deepcopy(dp.Mags_Dicts.DS_P100076_Trafo)												,	#?	current transformer parameters
+							'Trafo'					:	copy.deepcopy(Mags_Dicts.DS_P100076_Trafo)												,	#?	current transformer parameters
                             'Rt'					:	11																								,	#?	burden or terminating resistance
                             'Ct'					:	0																								,	#?	terminating capacitance
 							'Vf'        			:	0.375			    																			,   #?	rectifier diode forward voltage
@@ -1361,12 +1365,12 @@ DS_P100076			=	{																																	#*	DS_P100076 current transform
 									'SampleTime'								: 10e-6																	,	#?	random polarity sample time
 									'Digital'	:	{																										#!	digital error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
+															'ErrVec'			: ((np.array(error[1:5])).T).tolist()								,	#?	digital error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
                                     'Analog'	:	{																										#!	analog error parameters
 															'Config'			: 2																		,	#?	1->enable | 2->disable
-															'ErrVec'			: ((dp.np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
+															'ErrVec'			: ((np.array(error[5:9])).T).tolist()								,	#?	analog error vectors
 															'ErrType'			: 1																			#?	1->uncalibrated rms error | 2->uncalibrated max error | 3->calibrated rms error | 4->calibrated max error
 													},
 														},

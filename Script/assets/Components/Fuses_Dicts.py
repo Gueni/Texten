@@ -12,18 +12,18 @@
 #!   Do not modify the values in this file.
 #!----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-import  Lib.Data_Process            as        PP
+import  Lib.Param_Process            as        PM
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#! Call the Post-Processing class and point to the location of csv data
-postProcessing 		=	PP.Processing()
+#! Call the Params-Processing class and point to the location of csv data
+paramProcess 		=	PM.ParamProcess()
 FusesDissipation	=	'Script/Data/Fuses_Dissipation/'
 
 #! Fuses models parameters
 #?----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 fuse 	=	FusesDissipation + 'MEV55C'
-loss	=	postProcessing.extractArrays(fuse)
+loss	=	paramProcess.extractArrays(fuse)
 
 MEV55C				=	{																																	#*	MEV55C parameters
 							'Config'						:	2																						,	#?	1->enable | 2->short | 3->open
