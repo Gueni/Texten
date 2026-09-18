@@ -12,13 +12,20 @@
 #!   Do not modify the values in this file.
 #!----------------------------------------------------------------------------------------------------
 
-import assets.Dependencies as dp
+import collections
+import copy
+import numpy as np
+import assets.Components.Fuses_Dicts as Fuses_Dicts
+import assets.Components.Mags_Dicts as Mags_Dicts
+import assets.Components.Relay_Dicts as Relay_Dicts
+import assets.Components.Sensor_Dicts as Sensor_Dicts
+import assets.Components.Switches_Dicts as Switches_Dicts
 
-Fuses 		= 	dp.copy.deepcopy(dp.Fuses_Dicts.AllFuses)
-Mags 		=	dp.copy.deepcopy(dp.Mags_Dicts.AllMagnetics)
-Sensors 	=	dp.copy.deepcopy(dp.Sensor_Dicts.AllSensors)
-Switches 	=	dp.copy.deepcopy(dp.Switches_Dicts.AllSwitches)
-Relay		= 	dp.copy.deepcopy(dp.Relay_Dicts.AllRelays)
+Fuses 		= 	copy.deepcopy(Fuses_Dicts.AllFuses)
+Mags 		=	copy.deepcopy(Mags_Dicts.AllMagnetics)
+Sensors 	=	copy.deepcopy(Sensor_Dicts.AllSensors)
+Switches 	=	copy.deepcopy(Switches_Dicts.AllSwitches)
+Relay		= 	copy.deepcopy(Relay_Dicts.AllRelays)
 
 #------------------
 
@@ -50,7 +57,7 @@ Probes				= 	{																																	#*	probes statuses
                             'Electric_Probes'     	: 1 			  																					,	#?	1->Enable | 2->Disable
                             'Control_Probes'      	: 5       		  																						#? 	1->Peak Buck | 2->Duty Precharge | 3->Duty Boost | 4->Duty Buck | 5->Disable
                         }
-ToFile				=	dp.collections.OrderedDict({																													#*	PLECS built-in data output configuration
+ToFile				=	collections.OrderedDict({																													#*	PLECS built-in data output configuration
 							'OutputTimes'			:			  2																						,	#?	1->Enable | 2->Disable
 							'CurrentExport'			:			  2																						,	#?	1->Enable | 2->Disable
 							'VoltageExport'			:			  2																						,	#?	1->Enable | 2->Disable
@@ -208,25 +215,25 @@ RboxConfigs			=	{																																	#*	Rbox components configuarti
 # 						}
 
 Relays				=	{																																	#*	relays configurations
-							'MainPlus' 						:	dp.copy.deepcopy(Relay['EVRBE400CIS5'])													,	#?	Relay parameters
-							'MainMinus'						:	dp.copy.deepcopy(Relay['EVRBE400CIS5'])													,	#?	Relay parameters
-							'USMplus'						:	dp.copy.deepcopy(Relay['PierburgHVC'])													,	#?	Relay parameters
-							'USMminus'						:	dp.copy.deepcopy(Relay['PierburgHVC'])													,	#?	Relay parameters
-							'USMmid'						:	dp.copy.deepcopy(Relay['EVRBE400CIS5'])													,	#?	Relay parameters
-       						'DCDC'							:	dp.copy.deepcopy(Relay['EVRBE10UG'])													,	#?	Relay parameters
-       						'DCplus'						:	dp.copy.deepcopy(Relay['EVRBE400CIS5'])													,	#?	Relay parameters
-       						'DCminus'						:	dp.copy.deepcopy(Relay['EVRBE400CIS5'])													,	#?	Relay parameters
-                            'preCharge'						:	dp.copy.deepcopy(Relay['EVRBE400CIS5'])													,	#?	Relay parameters
-       						'OBCplus'						:	dp.copy.deepcopy(Relay['EVRBA50CI'])													,	#?	Relay parameters
-       						'OBCminus'						:	dp.copy.deepcopy(Relay['EVRBA50CI'])													,	#?	Relay parameters
-       						'ISO_en'						:	dp.copy.deepcopy(Relay['EVRBE400CIS5'])													,	#?	Relay parameters
-       						'ISO_sw'						:	dp.copy.deepcopy(Relay['EVRBE400CIS5'])													,	#?	Relay parameters
-							'PyroPlus' 						:  	dp.copy.deepcopy(Fuses['SFH400C'])														,   #? 	Relay parameters
-							'PyroMinus' 					:  	dp.copy.deepcopy(Fuses['SFH400C'])														,   #? 	Relay parameters
-							'PyroAux'   					:  	dp.copy.deepcopy(Fuses['SCH4KAA'])														,   #? 	Relay parameters
-							'DCplus_sw'   					:  	dp.copy.deepcopy(Relay['EVRBE400CIS5'])													,   #? 	Relay parameters
-							'DCminus_sw'   					:  	dp.copy.deepcopy(Relay['EVRBE400CIS5'])													,   #? 	Relay parameters
-							'USM_diag'   					:  	dp.copy.deepcopy(Relay['EVRBE400CIS5'])													,   #? 	Relay parameters
+							'MainPlus' 						:	copy.deepcopy(Relay['EVRBE400CIS5'])													,	#?	Relay parameters
+							'MainMinus'						:	copy.deepcopy(Relay['EVRBE400CIS5'])													,	#?	Relay parameters
+							'USMplus'						:	copy.deepcopy(Relay['PierburgHVC'])													,	#?	Relay parameters
+							'USMminus'						:	copy.deepcopy(Relay['PierburgHVC'])													,	#?	Relay parameters
+							'USMmid'						:	copy.deepcopy(Relay['EVRBE400CIS5'])													,	#?	Relay parameters
+       						'DCDC'							:	copy.deepcopy(Relay['EVRBE10UG'])													,	#?	Relay parameters
+       						'DCplus'						:	copy.deepcopy(Relay['EVRBE400CIS5'])													,	#?	Relay parameters
+       						'DCminus'						:	copy.deepcopy(Relay['EVRBE400CIS5'])													,	#?	Relay parameters
+                            'preCharge'						:	copy.deepcopy(Relay['EVRBE400CIS5'])													,	#?	Relay parameters
+       						'OBCplus'						:	copy.deepcopy(Relay['EVRBA50CI'])													,	#?	Relay parameters
+       						'OBCminus'						:	copy.deepcopy(Relay['EVRBA50CI'])													,	#?	Relay parameters
+       						'ISO_en'						:	copy.deepcopy(Relay['EVRBE400CIS5'])													,	#?	Relay parameters
+       						'ISO_sw'						:	copy.deepcopy(Relay['EVRBE400CIS5'])													,	#?	Relay parameters
+							'PyroPlus' 						:  	copy.deepcopy(Fuses['SFH400C'])														,   #? 	Relay parameters
+							'PyroMinus' 					:  	copy.deepcopy(Fuses['SFH400C'])														,   #? 	Relay parameters
+							'PyroAux'   					:  	copy.deepcopy(Fuses['SCH4KAA'])														,   #? 	Relay parameters
+							'DCplus_sw'   					:  	copy.deepcopy(Relay['EVRBE400CIS5'])													,   #? 	Relay parameters
+							'DCminus_sw'   					:  	copy.deepcopy(Relay['EVRBE400CIS5'])													,   #? 	Relay parameters
+							'USM_diag'   					:  	copy.deepcopy(Relay['EVRBE400CIS5'])													,   #? 	Relay parameters
       					}
 
 DCDC_AUX			=	{																																	#*	DCDC aux supply configuration
@@ -387,7 +394,7 @@ DCDC_AUX			=	{																																	#*	DCDC aux supply configuration
 							},
                             'RPP'	:	{																													#!	reverse polarity protection switch parameters
                                 'Config'					: 	2																						,	#?	1->active switch | 2->diode emulation
-                                'Switch'					: 	dp.copy.deepcopy(Switches['BUK9Y6R540H'])												,	#?	active switch parameters
+                                'Switch'					: 	copy.deepcopy(Switches['BUK9Y6R540H'])												,	#?	active switch parameters
                                 'GateDelay'					: 	750e-9																					,	#?	active switch gate-source response time
 								'Vf'						: 	0.0																						,	#?	emulated diode forward voltage drop
                                 'Rdon'						: 	12.35e-3																					#?	emulated diode on-state resistance
@@ -599,8 +606,8 @@ EIS 				=	{																																	#*	EIS control law
 
 #*---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------PSFB Parameters
 
-HVfuse				= 	dp.copy.deepcopy(Fuses['MEV55C'])																									#*	HV input fuse
-PyroFuse			=	dp.copy.deepcopy(Fuses['SFH400C'])																									#*	Rbox pyro fuse
+HVfuse				= 	copy.deepcopy(Fuses['MEV55C'])																									#*	HV input fuse
+PyroFuse			=	copy.deepcopy(Fuses['SFH400C'])																									#*	Rbox pyro fuse
 
 HVcmc				=	{																																	#*	HV CMC choke parameters
 							'Config'				:	1																								,	#?	1->positively coupled | 2->negatively coupled | 3->pass
@@ -655,7 +662,7 @@ Cc					= 	{																																	#*	HV snubber capacitors parameters
 							'Vinit'     			:	Initials['Vin']		       																			#?	capacitor initial voltage
 						}
 
-Trafo				=	dp.copy.deepcopy(Mags['Cyntec_C20_Trafo'])																							#*	main transformer parameters
+Trafo				=	copy.deepcopy(Mags['Cyntec_C20_Trafo'])																							#*	main transformer parameters
 
 Cb					= 	{																																	#*	transformer blocking capacitor parameters
 							'Config'    			:	2																								,   #?	1->capacitor only | 2->include ESR | 3->include ESR & ESL | 4->variable capacitor | 5->pass
@@ -766,7 +773,7 @@ RCDclamp		= 	{																																		#*	RCD clamp parameters
 							'nSer' 	    			:	1																								,   #?	number of series connections
 							'Vinit'     			:	0																									#?	capacitor initial voltage
 						},
-                        'Switch'     				:	dp.copy.deepcopy(Switches['NVMFS3D6N10MCL'])													,	#?	clamp switch
+                        'Switch'     				:	copy.deepcopy(Switches['NVMFS3D6N10MCL'])													,	#?	clamp switch
 					}
 
 ERCclamp 		=	{																																		#*	energy recovery clamp parameters
@@ -788,7 +795,7 @@ ERCclamp 		=	{																																		#*	energy recovery clamp paramet
 
 FRW				=		{																																	#*	freewheeler parameters
 						'Config'					:	2																								,	#?	1->enable | 2->disable
-						'Switch'					: 	dp.copy.deepcopy(Switches['NVMFS3D6N10MCL'])													,	#?	freewheeling switch parameters
+						'Switch'					: 	copy.deepcopy(Switches['NVMFS3D6N10MCL'])													,	#?	freewheeling switch parameters
 						'BlockingCap'	:	{																												#!	blocking capacitor parameters
 							'Config'    			:	5																								,   #?	1->capacitor only | 2->include ESR | 3->include ESR & ESL | 4->variable capacitor | 5->pass
 							'Csingle'   			:	0																								,   #?	single capacitor value
@@ -813,7 +820,7 @@ FRW				=		{																																	#*	freewheeler parameters
 						}
 					}
 
-Lf					= 	dp.copy.deepcopy(Mags['Cyntec_C20_Choke'])																							#*	LC filter output choke parameters
+Lf					= 	copy.deepcopy(Mags['Cyntec_C20_Choke'])																							#*	LC filter output choke parameters
 
 RCDsnubber			= 	{																																	#*	RCD snubber configuration
 							'Vf'       				:	0.58																							,   #?	diode forward voltage
@@ -1744,7 +1751,7 @@ burstControl		= 	{																																	#*	burst operation control pa
 activeDischarge		= 	{																																	#*	active discharge control
 							'Config'					:	2																							,	#?	1->Enable | 2->Disable
 							'Rdis' 						:	10.0																						,	#?	discharging resistance
-							'Switch'					:	dp.copy.deepcopy(Switches['PMT200EPE'])														,	#?	active discharge switch
+							'Switch'					:	copy.deepcopy(Switches['PMT200EPE'])														,	#?	active discharge switch
                             'BlockingDiode'	:	{																											#!	blocking diode parameters
                               'Vf'  					:	1																							,	#?	forward voltage
                               'Rd_on'					:	1e-3																							#?	diode on-resistance
@@ -1899,11 +1906,11 @@ ADCmodel			=	{
 
 #*---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------Sensor Parameters
 
-LV_voltageSense		=	dp.copy.deepcopy(Sensors['BuffDivider_3'])																							#*	LV voltage sensor
-HV_voltageSense		=	dp.copy.deepcopy(Sensors['SI8932D'])																								#*	HV voltage sensor
-LV_currentSense 	= 	dp.copy.deepcopy(Sensors['INA240A2'])																								#*	LV current sensor
-HV_currentSense		=	dp.copy.deepcopy(Sensors['ACS724'])																									#*	HV current sensor
-CT					=	dp.copy.deepcopy(Sensors['DS_P100076'])																								#*	current transformer sensor
+LV_voltageSense		=	copy.deepcopy(Sensors['BuffDivider_3'])																							#*	LV voltage sensor
+HV_voltageSense		=	copy.deepcopy(Sensors['SI8932D'])																								#*	HV voltage sensor
+LV_currentSense 	= 	copy.deepcopy(Sensors['INA240A2'])																								#*	LV current sensor
+HV_currentSense		=	copy.deepcopy(Sensors['ACS724'])																									#*	HV current sensor
+CT					=	copy.deepcopy(Sensors['DS_P100076'])																								#*	current transformer sensor
 
 #*---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------PSFB Controllers
 
@@ -1927,7 +1934,7 @@ PCMCbuck 			=	{																																	#*	peak buck mode controller
 							},
 							'Kp'             		:	0.84              																				,	#?	proportional gain for PI
 							'Ki'             		:	85800*MCU['T_s']    																			,   #?	integral gain for PI
-                            'K_c'					:	1.5e4*2*dp.np.pi*30e3/8e3																		,	#?	proportional gain for Type II
+                            'K_c'					:	1.5e4*2*np.pi*30e3/8e3																		,	#?	proportional gain for Type II
                             'f_p'					:	30e3																							,	#?	pole frequency for Type II
                             'f_z'					:	8e3																								,	#?	zero frequency for Type II
                             'Td'					:	0																								,	#?	controller delay
@@ -2071,21 +2078,21 @@ softStart			=	{																																	#*	buck/boost soft-start paramte
 
 #*---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------Active Switches
 
-LeftLeg_1			=	dp.copy.deepcopy(Switches['AIMDQ75R060M1H'])																						#*	HV left leg switches parameters
-LeftLeg_2			=	dp.copy.deepcopy(Switches['AIMDQ75R060M1H'])																						#*	HV left leg switches parameters
-RightLeg_1			=	dp.copy.deepcopy(Switches['AIMDQ75R060M1H'])																						#*	HV right leg switches parameters
-RightLeg_2			=	dp.copy.deepcopy(Switches['AIMDQ75R060M1H'])																						#*	HV right leg switches parameters
+LeftLeg_1			=	copy.deepcopy(Switches['AIMDQ75R060M1H'])																						#*	HV left leg switches parameters
+LeftLeg_2			=	copy.deepcopy(Switches['AIMDQ75R060M1H'])																						#*	HV left leg switches parameters
+RightLeg_1			=	copy.deepcopy(Switches['AIMDQ75R060M1H'])																						#*	HV right leg switches parameters
+RightLeg_2			=	copy.deepcopy(Switches['AIMDQ75R060M1H'])																						#*	HV right leg switches parameters
 
 #*---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------Rectifier Switches
 
-Rectifier_1			=	dp.copy.deepcopy(Switches['IAUT300N10S5N015'])																						#*	LV rectifier switches parameters
-Rectifier_2			=	dp.copy.deepcopy(Switches['IAUT300N10S5N015'])																						#*	LV rectifier switches parameters
-Rectifier_3			=	dp.copy.deepcopy(Switches['IAUT300N10S5N015'])																						#*	LV rectifier switches parameters
-Rectifier_4			=	dp.copy.deepcopy(Switches['IAUT300N10S5N015'])																						#*	LV rectifier switches parameters
+Rectifier_1			=	copy.deepcopy(Switches['IAUT300N10S5N015'])																						#*	LV rectifier switches parameters
+Rectifier_2			=	copy.deepcopy(Switches['IAUT300N10S5N015'])																						#*	LV rectifier switches parameters
+Rectifier_3			=	copy.deepcopy(Switches['IAUT300N10S5N015'])																						#*	LV rectifier switches parameters
+Rectifier_4			=	copy.deepcopy(Switches['IAUT300N10S5N015'])																						#*	LV rectifier switches parameters
 
 #*---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------Short-Circuit Switch
 
-SC_Switch			=	dp.copy.deepcopy(Switches['NVMTS0D6N04C'])																							#*	short-circuit switch parameters
+SC_Switch			=	copy.deepcopy(Switches['NVMTS0D6N04C'])																							#*	short-circuit switch parameters
 
 #*---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------Thermal Parameters
 
@@ -2182,7 +2189,7 @@ Common 				= 	{
 							'Relays'  					: 	Relays 									,
                             'PyroFuse'					:	PyroFuse								,
                             'DCDC_AUX'					:	DCDC_AUX								,
-							'Control'  					: 	dp.copy.deepcopy(Control) 				,
+							'Control'  					: 	copy.deepcopy(Control) 				,
 							'RailsOperation'  			: 	RailsOperation							,
 							'Initials'  				: 	Initials 								,
 							'Protection'  				: 	Protection 								,
@@ -2214,14 +2221,14 @@ Common 				= 	{
 							'FaultLogic'				:	FaultLogic								,
 							'ADCres'  					: 	ADCres 									,
 							'ADCgains'  				: 	ADCgains 								,
-							'PCMCbuck'  				: 	dp.copy.deepcopy(PCMCbuck) 				,
+							'PCMCbuck'  				: 	copy.deepcopy(PCMCbuck) 				,
 							'BalHys'  					: 	BalHys 									,
 							'softStart'  				: 	softStart 								,
 							'Thermal'  					: 	Thermal
                         }
 
 DCDC_Rail1 			= 	{
-							'Control'  					: 	dp.copy.deepcopy(Control) 				,
+							'Control'  					: 	copy.deepcopy(Control) 				,
 							'shortCircuit'				:	shortCircuit							,
 							'SC_Switch_Control'			: 	SC_Switch_Control 						,
 							'HVfuse'					:	HVfuse									,
@@ -2233,8 +2240,8 @@ DCDC_Rail1 			= 	{
 							'Trafo'  					: 	Trafo 									,
 							'Cb'  						: 	Cb 										,
 							'RCsnubber'  				: 	RCsnubber 								,
-							'RCDclamp1'					:	dp.copy.deepcopy(RCDclamp)				,
-							'RCDclamp2'					:	dp.copy.deepcopy(RCDclamp)				,
+							'RCDclamp1'					:	copy.deepcopy(RCDclamp)				,
+							'RCDclamp2'					:	copy.deepcopy(RCDclamp)				,
 							'ERCclamp'					:	ERCclamp								,
 							'FRW' 						: 	FRW 									,
 							'Lf'  						: 	Lf 										,
@@ -2251,7 +2258,7 @@ DCDC_Rail1 			= 	{
 							'LV_currentSense'			:	LV_currentSense							,
 							'HV_currentSense'			:	HV_currentSense							,
 							'CT'  						: 	CT 										,
-							'PCMCbuck'  				: 	dp.copy.deepcopy(PCMCbuck) 				,
+							'PCMCbuck'  				: 	copy.deepcopy(PCMCbuck) 				,
 							'ACMCprecharge' 			: 	ACMCprecharge 							,
 							'ACMCboost'  				: 	ACMCboost 								,
 							'ACMCbuck'  				: 	ACMCbuck 								,
@@ -2268,7 +2275,7 @@ DCDC_Rail1 			= 	{
 						}
 
 DCDC_Rail2 			= 	{
-							'Control'  					: 	dp.copy.deepcopy(Control) 				,
+							'Control'  					: 	copy.deepcopy(Control) 				,
 							'shortCircuit'				:	shortCircuit							,
 							'SC_Switch_Control'			: 	SC_Switch_Control 						,
 							'HVfuse'					:	HVfuse									,
@@ -2280,8 +2287,8 @@ DCDC_Rail2 			= 	{
 							'Trafo'  					: 	Trafo 									,
 							'Cb'  						: 	Cb 										,
 							'RCsnubber'  				: 	RCsnubber 								,
-							'RCDclamp1'					:	dp.copy.deepcopy(RCDclamp)				,
-							'RCDclamp2'					:	dp.copy.deepcopy(RCDclamp)				,
+							'RCDclamp1'					:	copy.deepcopy(RCDclamp)				,
+							'RCDclamp2'					:	copy.deepcopy(RCDclamp)				,
 							'ERCclamp'					:	ERCclamp								,
 							'FRW' 						: 	FRW 									,
 							'Lf'  						: 	Lf 										,
@@ -2298,7 +2305,7 @@ DCDC_Rail2 			= 	{
 							'LV_currentSense'			:	LV_currentSense							,
 							'HV_currentSense'			:	HV_currentSense							,
 							'CT'  						: 	CT 										,
-							'PCMCbuck'  				: 	dp.copy.deepcopy(PCMCbuck) 				,
+							'PCMCbuck'  				: 	copy.deepcopy(PCMCbuck) 				,
 							'ACMCprecharge' 			: 	ACMCprecharge 							,
 							'ACMCboost'  				: 	ACMCboost 								,
 							'ACMCbuck'  				: 	ACMCbuck 								,
