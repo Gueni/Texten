@@ -7,80 +7,14 @@
 #?                                                   |____/ \___| .__/ \___|_| |_|\__,_|\___|_| |_|\___|_|\___||___/
 #?                                                              |_|
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-#* STANDARD PYTHON LIBRARIES
-#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-import  ast         ,   json            ,   functools
-import  os          ,   sys             ,   time
-import  copy        ,   glob            ,   base64
-import  datetime    ,   shutil          ,   pathlib
-import  random      ,   re              ,   decimal
-import  psutil      ,   subprocess      ,   socket
-import  win32gui    ,   win32con        ,   multiprocessing
+import  json
+import  time
+import  datetime    ,   pathlib
+import  random      ,   re
 import  importlib
-
-#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-#* NUMERICAL & SCIENTIFIC
-#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 import  numpy                       as        np
-import  scipy                       as        sc
-
-
-#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-#* DATA & UTILITIES
-#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-import  pandas                      as        pd
-
-import  natsort     ,   unflatten       ,   collections
-import  itertools   ,   jinja2          ,   functools
-import  traceback   ,   contextlib      ,   flatdict
-
-#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-#* VISUALIZATION
-#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-import  plotly
-import  pyfiglet
-from    plotly.subplots             import    make_subplots
-from    rich.console                import    Console
-from    rich.panel                  import    Panel
-
-#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-#* NETWORKING & SERIALIZATION
-#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-import  xmlrpc.client
-import  jsonrpc_requests
-import  webbrowser
-#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-#* MISC
-#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-# import pyautogui              # used in pylog for auto break lib links
-# import pygetwindow as gw      # used in pylog for auto break lib links
-
-from deprecated import deprecated
-#import warnings
-#warnings.simplefilter("always", DeprecationWarning)
-
-#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-#* INTERNAL    : ASSETS
-#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-# import  assets.Components.Mags_Dicts            as        Mags_Dicts
-# import  assets.Components.OpAmps_Dicts          as        OpAmps_Dicts
-# import  assets.Components.Sensor_Dicts          as        Sensor_Dicts
-# import  assets.Components.Switches_Dicts        as        Switches_Dicts
-# import  assets.Components.Fuses_Dicts           as        Fuses_Dicts
-# import  assets.Components.Relay_Dicts           as        Relay_Dicts
-# import  assets.Components.Battery_Dicts         as        Battery_Dicts
-# import  assets.Components.Diodes_Dicts          as        Diodes_Dicts
-# import  assets.Components.FerriteBeads_Dicts    as        FerriteBeads_Dicts
-import  assets.Mapping.plecs_mapping            as        pmap
-
-#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-#?                                           ____ _       _           _  __     __         _       _     _
-#?                                          / ___| | ___ | |__   __ _| | \ \   / /_ _ _ __(_) __ _| |__ | | ___  ___
-#?                                         | |  _| |/ _ \| '_ \ / _` | |  \ \ / / _` | '__| |/ _` | '_ \| |/ _ \/ __|
-#?                                         | |_| | | (_) | |_) | (_| | |   \ V / (_| | |  | | (_| | |_) | |  __/\__ \
-#?                                          \____|_|\___/|_.__/ \__,_|_|    \_/ \__,_|_|  |_|\__,_|_.__/|_|\___||___/
-#?
-#?
+import  itertools
+import  assets.Mapping.plecs_mapping    as  pmap
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 json_path                               =   pathlib.Path(r"Script\assets\Configuration\Input_vars.json")                                                     #?
 JSON                                    =   json.loads(json_path.read_text(encoding="utf-8"))                                                           #?
