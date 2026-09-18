@@ -35,7 +35,6 @@ anlOpts                                 =   Param_Dicts.AnalysisOpts            
 scopes                                  =   []                                                                                                          #? Empty global list to hold the model scopes.
 
 Header_File                             =   "Script/assets/Headers/header.json"                                                                         #? Json file path in which we store headers.
-json_path                               =   "Script/assets/Configuration/Input_vars.json"                                                               #? Path to JSON file
 html_template_iter                      =   "Script/assets/Templates/HTML_REPORT_TEMPLATE_iter.html"                                                    #? CSS style sheet.
 html_template_standalone                =   "Script/assets/Templates/HTML_REPORT_TEMPLATE_std.html"                                                     #? Iteration Html report template file.
 html_template                           =   "Script/assets/Templates/HTML_REPORT_TEMPLATE.html"                                                         #? Html standalone template.
