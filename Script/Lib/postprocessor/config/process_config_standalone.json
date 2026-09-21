@@ -1,0 +1,46 @@
+{
+    "Config_Name" : "Standalone",
+    "Slicing" : {
+        "t_vec" : { "slice"  : "slice(1)",          "length" : 1},
+        "all"   : { "slice"  : "slice(1, None)",    "length" : 0}
+        },
+    "Processes" : {
+        "t_vec"             : {
+            "processor"     : "NONE",
+            "slice"         : "t_vec",
+            "intermediate"  : true
+        },
+        "RMS"      : {
+            "processor"     : "RMS",
+            "slice"         : "all"
+        },
+        "AVG"      : {
+            "processor"     : "AVG",
+            "slice"         : "all"
+        },
+        "MAX"     : {
+            "processor"     : "AMAX",
+            "slice"         : "all"
+        },
+        "MIN"     : {
+            "processor"     : "MIN",
+            "slice"         : "all"
+        },
+        "P2P"      : {
+            "processor"     : "P2P",
+            "slice"         : "all"
+        },
+        "FIRST"    : {
+            "processor"     : "FIRST",
+            "slice"         : "all"
+        },
+        "LAST"     : {
+            "processor"     : "LAST",
+            "slice"         : "all"
+        },
+        "FFT"       : {
+            "processor"     : "FFT",
+            "slice"         : "all"
+        }
+    }
+}
