@@ -1,0 +1,244 @@
+#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
+#? Python
+#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.pkl
+.hypothesis/
+.pytest_cache/
+cover/
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+.pdm.toml
+__pypackages__/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# mkdocs documentation
+/site
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
+#? VsCode
+#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+/.vscode
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
+
+# Ignore all local history of files
+.history
+.ionide
+
+#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
+#? Project Files and Folders
+#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+/DCDC/AverageModel
+/DCDC/Unused
+/DCDC/*.autosave
+/DCDC/burstConfig.plecs
+/DCDC/doublePulse.plecs
+/DCDC/*.trace
+/DCDC/Diode_RR.plecs
+/DCDC/dual_active_bridge_converter.plecs
+/DCDC/dual_active_bridge_converter_plecs
+
+/.claude/**
+/Matlab/**
+
+/newParams.m
+/newScripts.m
+
+/OBC/Unused
+/OBC/E3M0075120K__LLC_Single_Thermal_Sweep.csv
+/OBC/E3M0075120K__PFC_1Phase_11KW_Thermal_Sweep.csv
+/OBC/E3M0075120K__PFC_Eff.csv
+/OBC/E3M0075120K_Power_in - Copy.csv
+/OBC/E3M0075120K_Power_in.csv
+/OBC/New Text Document.txt
+
+/MyLibraries/Unresolved Libraries.plecs
+/MyLibraries/Custom Libraries.plecs
+MyLibraries/CustomLibraries.plecs.autosave
+/MyLibraries/Unused Archive.plecs
+/MyLibraries/**/*.png
+/MyLibraries/**/*.py
+/MyLibraries/*.md
+/Script/Lib/*.md
+/Script/Lib/docs/**
+/Script/Lib/docs/*.py
+/Script/Lib/docs/*.png
+/Script/Lib/docs/
+
+*.autosave
+*.pyc
+*.trace
+*.mat
+*.elf
+*.c
+*.o
+*.h
+*.mk
+*.zip
+*.whl
+
+DCDC/test.plecs
+DCDC/Files/*.csv
+DCDC/Subcircuits/**/*.csv
+DCDC/LabTests/Files/*.csv
+
+OBC/Files/*.csv
+
+Script/DCDC/ScriptBody.py
+Script/DCDC/test.py
+Script/DCDC/test2.py
+
+Script/Lib/ScriptBody.py
+Script/Lib/test.py
+/Script/Lib/*.pyc
+/Script/Lib/__ init __.py
+
+Script/regler.py
+Script/impedance.py
+/Script/__pycache__
+
+FMU/*.fmu
+FMU/*expanded
+
+Others/stateSpace.plecs
+Others/test.plecs
+/Others/test3.py
+/Others/test44.py
+/Others/dahsh.py
+Others/thermalCircuits.plecs
+Others/Files/avalanchePower_set3_40A.csv
+Others/Files/avalanchePower_set4_50A.csv
+Others/Files/chokeCurrent.csv
+Others/Files/rectifierVoltage.csv
+Others/**/*.csv
+/Others/*.autosave
+
+RT_Box/**/*.obj
+RT_Box/**/*.d
+RT_Box/**/*.cla
+RT_Box/**/*.map
+RT_Box/**/*.out
+RT_Box/**/*.ccxml
+RT_Box/**/*.txt
+RT_Box/**/*.c
+RT_Box/**/*.json
+RT_Box/**/*.lua
+RT_Box/**/*.lkf
+RT_Box/**/*.bin
+RT_Box/**/*.d_raw
+RT_Box/**/*.xml
+RT_Box/**/*.a2l
+RT_Box/**/*.uptodate
+RT_Box/**/Files/*.csv
+Script/Data/Netlists/**/*.log
+
+Script/assets/Headers/AVG_Currents.json
+Script/assets/Headers/AVG_Voltages.json
+Script/assets/Headers/Controls.json
+Script/assets/Headers/Dissipations.json
+Script/assets/Headers/Elec_Stats.json
+Script/assets/Headers/FFT_Current.json
+Script/assets/Headers/FFT_Voltage.json
+Script/assets/Headers/header.json
+Script/assets/Headers/Peak_Currents.json
+Script/assets/Headers/Peak_Voltages.json
+Script/assets/Headers/RMS_Currents.json
+Script/assets/Headers/RMS_Voltages.json
+Script/assets/Headers/Temps.json
+Script/assets/Headers/Thermal_Stats.json
+Script/assets/Headers/P2P_Currents.json
+Script/assets/Headers/P2P_Voltages.json
+Script/assets/Headers/*.json
+
+Script/assets/Configuration/Input_vars.json
+Script/assets/Configuration/InitializationCommands.m
+Script/assets/jsonExport.py
+Script/assets/Input_vars.json
+Script/assets/Input_vars.json
+Script/assets/Input_vars.json
+Script/assets/figlet.py
+Script/assets/figlet.py
+
+Script/Data/Netlists/**/*.log
+Script/Data/Log/error_log.log
+/Script/Data/test.py
+/Script/Data/test2.py
+/Script/Data/txt.txt
+/Script/Data/Log/**/*.log
+/Script/Data/Res/**/
+
+#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
