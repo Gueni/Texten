@@ -1,0 +1,75 @@
+{
+  "model"             :   "",
+  "modelname"         :   "",
+  "scriptName"        :   "",
+  "params"            :   "",
+  "analysis"          :   false,
+  "analysisName"      :   "",
+
+  "X1"                :   "[0]",
+  "X2"                :   "[0]",
+  "X3"                :   "[0]",
+  "X4"                :   "[0]",
+  "X5"                :   "[0]",
+  "X6"                :   "[0]",
+  "X7"                :   "[0]",
+  "X8"                :   "[0]",
+  "X9"                :   "[0]",
+  "X10"               :   "[0]",
+  "sweepNames"        :   ["X1","X2","X3","X4","X5","X6","X7","X8","X9","X10"],
+  "Var1"              :   "X1",
+  "Var2"              :   "X2",
+  "maxThreads"        :   1,
+
+  "perturbation"      :   0,
+  "nvars"             :   null,
+
+  "hierarchical"      :   false,
+  "parallel"          :   false,
+  "permute"           :   true,
+
+  "applyTol"          :   false,
+  "Comps"             :   [""] ,
+
+  "Tols"              :   "[]",
+  "points"            :   null,
+
+  "simNote"           :   "N/A",
+  "figureName"        :   [],
+  "figureComment"     :   [],
+
+  "paramKeys"         :   ["N/A"],
+  "paramVals"         :   "[0]",
+  "paramUnts"         :   ["N/A"],
+
+  "saveData"          :   false,
+  "openHTML"          :   false,
+  "iterReport"        :   false,
+  "scopes"            :   [null],
+
+  "FFT"               :   false,
+  "hrmcs"             :   1,
+  "FundFreq"          :   100e3,
+
+  "ModelVars"         :   [
+    "dp.mdlVars['Common']['simParams']['tSim']                                        = 1",
+    "dp.mdlVars['Common']['simParams']['tBegin']                                      = 0",
+    "dp.mdlVars['Common']['simParams']['tSave']                                       = 0",
+    "dp.mdlVars['Common']['simParams']['ZeroCross']                                   = 1000",
+    "dp.mdlVars['Common']['simParams']['Maxstep']                                     = 1e-3",
+    "dp.mdlVars['Common']['simParams']['Fixedstep']                                   = 1e-3",
+    "dp.mdlVars['Common']['simParams']['RelTol']                                      = 1e-3",
+
+
+
+    "dp.slvOpts['Solver']                                                             = 'auto'",
+    "dp.slvOpts['JacobianComputation']                                                = 'analytical'",
+    "dp.slvOpts['StartTime']                                                          = 0",
+    "dp.slvOpts['ZeroCross']                                                          = dp.mdlVars['Common']['simParams']['ZeroCross']",
+    "dp.slvOpts['TimeSpan']                                                           = dp.mdlVars['Common']['simParams']['tSim']",
+    "dp.slvOpts['MaxStep']                                                            = dp.mdlVars['Common']['simParams']['Maxstep']",
+    "dp.slvOpts['Fixedstep']                                                          = dp.mdlVars['Common']['simParams']['Fixedstep']",
+    "dp.slvOpts['RelTol']                                                             = dp.mdlVars['Common']['simParams']['RelTol']"
+  ],
+  "AnalysisOpts"	    : 	{}
+}

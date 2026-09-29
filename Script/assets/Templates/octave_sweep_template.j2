@@ -1,0 +1,154 @@
+
+%---------------------------------------------------------------------------------------------------------------------------
+%% Clear Console
+%---------------------------------------------------------------------------------------------------------------------------
+plecs('clc');                                           % Clear Console.
+plecs('warning', 'warning message');                    % Display Warnings.
+
+%---------------------------------------------------------------------------------------------------------------------------
+%% Configuration
+%---------------------------------------------------------------------------------------------------------------------------
+RESULTS_DIR     = '{{ scopes_folder }}';                % Directory for scopes traces
+CSV_DIR         = '{{ csv_folder }}';              % Directory for csv time series results
+HOLD_TRACES     = true;                                 % Set to true to hold traces after each simulation
+CLEAR_TRACES    = true;                                 % Set to true to clear traces before starting
+SAVE_TRACES     = true;                                 % Set to true to save traces to files
+
+%---------------------------------------------------------------------------------------------------------------------------
+%% Sweep data
+%---------------------------------------------------------------------------------------------------------------------------
+{% if mapvars_dim == 3 %}
+data = {
+    {% for row in mapvars %}
+    { {% for inner in row %}[{{ inner | join(', ') }}]{% if not loop.last %}, {% endif %}{% endfor %} }{% if not loop.last %};
+    {% endif %}
+    {% endfor %}
+};
+{% else %}
+data = [
+    {% for row in mapvars %}    [{{ row | join(', ') }}];
+    {% endfor %}
+];
+{% endif %}
+
+{{ simstruct_line }}
+
+%---------------------------------------------------------------------------------------------------------------------------
+%% Model
+%---------------------------------------------------------------------------------------------------------------------------
+
+mdl         = plecs('get', '', 'CurrentCircuit');               % Get model name and scope list
+mdl_name    = (strsplit(mdl, filesep)){end};                    % Extract just the model name
+mdl_name    = (strsplit(mdl_name, '.')){1};                     % Remove extension
+scopes      = { {{ scopes | map('tojson') | join(', ') }} };    % List of scopes in the model%
+t           = localtime(time());
+
+%---------------------------------------------------------------------------------------------------------------------------
+%% Clear Scopes
+%---------------------------------------------------------------------------------------------------------------------------
+
+% Clear all traces before starting if enabled
+if CLEAR_TRACES
+    for i = 1:length(scopes)
+        try
+            plecs('scope', [mdl '/' scopes{i}], 'ClearTraces');
+        catch
+            % Silently ignore errors
+        end
+    end
+end
+
+% Create results directory if saving is enabled
+if SAVE_TRACES
+    if ~exist(RESULTS_DIR, 'dir')
+        mkdir(RESULTS_DIR);
+        mkdir(CSV_DIR);
+    end
+end
+
+%---------------------------------------------------------------------------------------------------------------------------
+%% Header
+%---------------------------------------------------------------------------------------------------------------------------
+disp(sprintf('%s', '-' * ones(1, 90)));
+disp(sprintf('%s', '-' * ones(1, 90)));
+disp(sprintf('SIMULATION STARTED'));
+disp(sprintf('%s', '-' * ones(1, 90)));
+disp(sprintf('%s', '-' * ones(1, 90)));
+
+disp(sprintf('Date               : %s', strftime("%r(%Z) %A %e %B %Y", t)));
+disp(sprintf('Time               : %s', strftime("%H:%M:%S", t)));
+disp(sprintf('Model              : %s', mdl_name));
+disp(sprintf('Iterations         : %d', size(data, 1)));
+
+%---------------------------------------------------------------------------------------------------------------------------
+%% Main Loop
+%---------------------------------------------------------------------------------------------------------------------------
+
+for sim = 1:size(data, 1)
+
+    %% ------------------------------------------------------------------------
+    disp(sprintf('%s', '-' * ones(1, 90)));
+    disp(sprintf('Iteration Number   : %d', sim));
+    %% ------------------------------------------------------------------------
+
+    {% for i, expr in mappings.items() %}
+    % Assign value
+    {{ expr }};
+
+    % Print evaluated value
+    disp(sprintf('%-50s = %12g','{{ expr.split("=")[0].strip() }}', {{ expr.split("=")[0].strip() }}));
+    {% endfor %}
+
+    % Construct filename using strcat with simulation number
+    filename    = strcat('{{ FileNameStandalonePath }}', sprintf('%01d_Standalone.csv', sim));
+
+    % Assign filename to ToFile block
+    simStruct.ModelVars.Common.ToFile.FileNameStandalone = filename;
+
+    % Print filename for verification
+    disp(sprintf('Output File: %s', filename));
+
+    %% ------------------------------------------------------------------------
+    plecs('simulate', simStruct);
+    %% ------------------------------------------------------------------------
+
+    %% Hold traces for all scopes if enabled
+    if HOLD_TRACES
+        trace_name = sprintf('Iter_%d_Standalone', sim);
+        for i = 1:length(scopes)
+            try
+                plecs('scope', [mdl '/' scopes{i}], 'HoldTrace', trace_name);
+            catch
+                % Silently ignore errors
+            end
+        end
+    end
+    %% ------------------------------------------------------------------------
+end
+
+%---------------------------------------------------------------------------------------------------------------------------
+%% Save traces once per scope after all iterations
+%---------------------------------------------------------------------------------------------------------------------------
+if SAVE_TRACES
+    for i = 1:length(scopes)
+        try
+            scope_path = [mdl '/' scopes{i}];
+            % Replace any slashes in scope name for filename
+            safe_scope_name = strrep(scopes{i}, '/', '_');
+            safe_scope_name = [safe_scope_name '_Standalone'];
+            trace_file = fullfile(RESULTS_DIR, sprintf('%s', safe_scope_name));
+            plecs('scope', scope_path, 'SaveTraces', trace_file);
+        catch
+            % Silently ignore errors
+        end
+    end
+end
+%---------------------------------------------------------------------------------------------------------------------------
+%% Footer
+%---------------------------------------------------------------------------------------------------------------------------
+disp(sprintf('%s', '-' * ones(1, 90)));
+disp(sprintf('%s', '-' * ones(1, 90)));
+disp(sprintf('SIMULATION FINISHED : Ran %d Iterations', size(data, 1)));
+disp(sprintf('%s', '-' * ones(1, 90)));
+disp(sprintf('%s', '-' * ones(1, 90)));
+%---------------------------------------------------------------------------------------------------------------------------
