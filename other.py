@@ -1,12 +1,14 @@
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-#? ____ ____ _ _
-#? | _ \ _ _ _ __ / ___| ___ _ __(_)_ __ | |_ ___
-#? | |_) | | | | '_ \\___ \ / __| '__| | '_ \| __/ __|
-#? | _ <| |_| | | | |___) | (__| | | | |_) | |_\__ \
-#? |_| \_\\__,_|_| |_|____/ \___|_| |_| .__/ \__|___/
-#? |_|
+#?                                           ____              ____            _       _
+#?                                          |  _ \ _   _ _ __ / ___|  ___ _ __(_)_ __ | |_ ___
+#?                                          | |_) | | | | '_ \\___ \ / __| '__| | '_ \| __/ __|
+#?                                          |  _ <| |_| | | | |___) | (__| |  | | |_) | |_\__ \
+#?                                          |_| \_\\__,_|_| |_|____/ \___|_|  |_| .__/ \__|___/
+#?                                                                              |_|
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
+import collections
 import copy
+import types
 import numpy as np
 import os
 import assets.Mapping.plecs_mapping as pmap
@@ -22,42 +24,61 @@ import  Lib.Pymisc                  as      msc
 import  Lib.py_plot                 as      plt
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-class _AutoVivDict(dict):
-    """ A dict that creates missing keys as another _AutoVivDict on first access, instead of raising KeyError -- so a nested assignment like d['Common']['simParams']['tSim'] = 0.00085 works starting from a completely empty {}, with none of d's parent keys needing to exist first. ?NOTE: Used only to rebuild ModelVars/SolverOpts containing strictly what Input_vars.json's own ModelVars list sets (see runScripts.simInit()) -- dp.mdlVars/dp.slvOpts themselves start from Param_Dicts.ModelVars/SolverOpts, large pre-populated baselines, so the list's entries (written as dp.mdlVars['Common']['simParams']['tSim'] = ...) can't be re-run against an empty plain dict without this. """
-    def __missing__(self, key):
-        value       = self[key] = _AutoVivDict()
-        return value
-
-
 def build_modelvars_from_list(modelvars_list):
-    """ Runs the given list of "dp.mdlVars[...] = ..." / "dp.slvOpts[...] = ..." exec() strings -- exactly the shape of Input_vars.json's own "ModelVars" entries -- against fresh, empty structures, entirely separate from dp.mdlVars/dp.slvOpts's own Param_Dicts.ModelVars/SolverOpts baseline (both of which start as large, pre-populated dicts, not empty). Returns what the list itself sets, as plain nested dicts -- nothing from that baseline. ?NOTE: Uses _AutoVivDict so a nested assignment like dp.mdlVars['Common']['simParams']['tSim'] = ... works starting from {}, then converts the result to plain dicts before returning -- callers get ordinary dicts, not _AutoVivDict instances. If any item in modelvars_list *reads* a nested path that no earlier item in the same list already wrote (relying on it coming from the real baseline instead), that read resolves to an empty {} here rather than the real baseline value, since nothing is pre-populated. modelvars_list needs to be self-sufficient -- every value an item reads should already have been set by an earlier item in the same list -- for this to produce correct results. *Args: modelvars_list (list[str]) : The exec() strings, e.g. Input_vars.json's "ModelVars" entry. !Returns: tuple[dict, dict] : (mdlVars, slvOpts), built strictly from modelvars_list. """
-    def _to_plain(d):
-        return {k: (_to_plain(v) if isinstance(v, dict) else v) for k, v in d.items()}
+    """
+    Builds ModelVars and SolverOpts containing only what Input_vars.json's "ModelVars" list sets,
+    without touching the real dp.mdlVars / dp.slvOpts.
 
-    real_mdlVars, real_slvOpts  =   dp.mdlVars, dp.slvOpts
-    dp.mdlVars, dp.slvOpts      =   _AutoVivDict(), _AutoVivDict()
+    The list items are strings like "dp.mdlVars['Common']['simParams']['tSim'] = 0.00085". They are
+    run with exec() against a private copy of dp whose mdlVars/slvOpts start empty, so nothing from the
+    real (pre-populated) baseline dicts ends up in the result.
 
-    for item in modelvars_list  :   exec(item)
+    Args:
+        modelvars_list (list[str]) : The exec() strings, e.g. self.JS['ModelVars'].
 
-    mdlVars, slvOpts            =   _to_plain(dp.mdlVars), _to_plain(dp.slvOpts)
-    dp.mdlVars, dp.slvOpts      =   real_mdlVars, real_slvOpts
+    Returns:
+        tuple[dict, dict] : (mdlVars, slvOpts) as plain nested dicts, built strictly from the list.
+    """
 
-    return mdlVars, slvOpts
+    def tree():
+        """Returns a dict-like that creates a nested dict of its own kind whenever a missing key is accessed."""
+        return collections.defaultdict(tree)    # defaultdict calls tree() for each missing key, so nested assignment works from {}
+
+    def plain(d):
+        """Recursively converts nested defaultdicts into ordinary dicts, leaving non-dict values as they are."""
+        return {k: (plain(v) if isinstance(v, dict) else v) for k, v in d.items()}  # recurse into dict values, keep everything else
+
+    # a private copy of dp whose mdlVars/slvOpts are fresh -- the items write to this, never to the real dp
+    # vars(dp) copies every dp attribute (shallow), then 'mdlVars'/'slvOpts' are overridden with empty trees,
+    # so items that read other dp attributes still work but nothing from the real mdlVars/slvOpts leaks in
+    local_dp = types.SimpleNamespace(**{**vars(dp), 'mdlVars': tree(), 'slvOpts': tree()})
+
+    # run every item with local_dp standing in for dp; {**globals(), ...} keeps names like np available as in a plain exec(item)
+    for item in modelvars_list  :   exec(item, {**globals(), 'dp': local_dp})
+
+    # convert the filled-in trees back to plain dicts and hand both back (mdlVars first, slvOpts second)
+    return plain(local_dp.mdlVars), plain(local_dp.slvOpts)
 
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 @er.safe_class()
 class runScripts:
     def __init__(self,jsonInputs):
-        """ This function initializes the runScripts class with the provided JSON inputs. It sets up various class attributes and initializes necessary classes for simulation, logging, and post-processing. *Args: jsonInputs (dict): Dictionary containing JSON inputs for the simulation. """
+        """
+        This function initializes the runScripts class with the provided JSON inputs.
+        It sets up various class attributes and initializes necessary classes for simulation, logging, and post-processing.
 
-        self.JS                 =   jsonInputs                                                      # declare json input file
-        self.misc               =   msc.Misc()                                                      # initialize miscellaneous class
-        self.fileLog            =   flg.FileAndLogging(json_dir=self.JS['scriptName'])              # initialize FileAndLogging class
-        self.simutil            =   sutl.SimulationUtils()                                          # initialize SimulationUtils class
-        self.plot               =   plt.HTML_REPORT(self.fileLog.resultfolder,self.fileLog.utc)     # initialize pyplot class
-        self.paramProcess       =   PM.ParamProcess()                                               # initialize ParamProcess class
-        self.postProcessing     =   PP.Processing()                                                 # initialize Processing class
+        *Args:
+            jsonInputs (dict): Dictionary containing JSON inputs for the simulation.
+        """
+
+        self.JS                 =   jsonInputs                                                      #  declare json input file
+        self.misc               =   msc.Misc()                                                      #  initialize miscellaneous class
+        self.fileLog            =   flg.FileAndLogging(json_dir=self.JS['scriptName'])              #  initialize FileAndLogging class
+        self.simutil            =   sutl.SimulationUtils()                                          #  initialize SimulationUtils class
+        self.plot               =   plt.HTML_REPORT(self.fileLog.resultfolder,self.fileLog.utc)     #  initialize pyplot class
+        self.paramProcess       =   PM.ParamProcess()                                               #  initialize ParamProcess class
+        self.postProcessing     =   PP.Processing()                                                 #  initialize Processing class
 
         # RT Box capability now lives directly on self.obj (PlecsRPC), built in simInit() once the
         # PLECS connection exists -- no separate object to construct here. self.rt_enabled_flag is
@@ -65,9 +86,12 @@ class runScripts:
         # simEnd() can check it safely even if simInit() fails before self.obj gets created at all.
         self.rt_enabled_flag    =   dp.JSON.get("RT", False)
 
-@er.hint(" hint inside siminit")
+    @er.hint(" hint inside siminit")
     def simInit(self):
-        """ This function initializes the simulation environment from PLECS model to parameters to creation of target results folder. """
+        """
+        This function initializes the simulation environment
+        from PLECS model to parameters to creation of target results folder.
+        """
 
         # Initialize the simulation environment by creating necessary folders.
         # Selecting the mapping for post-processing, initializing simulation variables.
@@ -124,9 +148,14 @@ class runScripts:
         # Clear the traces of the desired scopes in the PLECS model.
         self.obj.ClearTrace(self.JS['modelname'],dp.scopes)
 
-@er.hint(" hint inside simLog")
+    @er.hint(" hint inside simLog")
     def simLog(self,OptStruct):
-        """ This function logs the simulation parameters and updates the iteration number. *Args: OptStruct (dict): Dictionary containing the simulation parameters. """
+        """
+        This function logs the simulation parameters and updates the iteration number.
+
+        *Args:
+            OptStruct (dict): Dictionary containing the simulation parameters.
+        """
 
         # Increment the iteration number and log the current iteration number.
         # It also logs the updated parameters and the name of the simulation.
@@ -149,9 +178,20 @@ class runScripts:
         self.plot.iter_param_val.append(eval(self.JS['paramVals']))
         self.plot.iter_param_unt.append(self.JS['paramUnts'])
 
-@er.hint(" hint inside simRun")
+    @er.hint(" hint inside simRun")
     def simRun(self,threads=1,parallel=False,callback=""):
-        """ This function runs a simulation or an analysis and records the elapsed time. When RT Box is enabled (Input_vars.json's "RT"), self.obj.LaunchSim() itself runs the RT Box workflow on the real hardware instead of an offline PLECS simulation -- decided entirely inside PlecsRPC, so there's no RT-Box-specific branch to make here; this calls LaunchSim()/LaunchAnalysis() exactly as it always did. *Args: threads (int, optional) : number of parallel threads to simulate. Defaults to 1. parallel (bool, optional): determine whether a single or parallel simulation. Defaults to False. callback (str, optional) : define a callback fundtion to be executed after simulation is completed. Defaults to "". """
+        """
+        This function runs a simulation or an analysis and records the elapsed time. When RT Box is
+        enabled (Input_vars.json's "RT"), self.obj.LaunchSim() itself runs the RT Box workflow on the
+        real hardware instead of an offline PLECS simulation -- decided entirely inside PlecsRPC, so
+        there's no RT-Box-specific branch to make here; this calls LaunchSim()/LaunchAnalysis() exactly
+        as it always did.
+
+        *Args:
+            threads   (int, optional) : number of parallel threads to simulate. Defaults to 1.
+            parallel  (bool, optional): determine whether a single or parallel simulation. Defaults to False.
+            callback  (str, optional) : define a callback fundtion to be executed after simulation is completed. Defaults to "".
+        """
 
         # Selects between simulation and analysis based on the JSON input.
         self.misc.tic()
@@ -166,9 +206,18 @@ class runScripts:
 
         self.misc.tic()
 
-@er.hint(" hint inside simSave")
+    @er.hint(" hint inside simSave")
     def simSave(self,Simulation=0,Crash=False):
-        """ This function saves the simulation results to disk and store them in data matrices. In addition, it performs post-processing on raw results. Skipped entirely when RT Box is enabled: there's no PLECS simulation output to hold traces of or save (the run went to real-time hardware instead) -- only the log file still gets written. *Args: Simulation (int, optional) : simulation package number. Defaults to 0. Crash (bool, optional) : determine if a crash happened in a previous iteration. Defaults to False. """
+        """
+        This function saves the simulation results to disk and store them in data matrices.
+        In addition, it performs post-processing on raw results.
+        Skipped entirely when RT Box is enabled: there's no PLECS simulation output to hold traces
+        of or save (the run went to real-time hardware instead) -- only the log file still gets written.
+
+        *Args:
+            Simulation  (int, optional)     : simulation package number. Defaults to 0.
+            Crash       (bool, optional)    : determine if a crash happened in a previous iteration. Defaults to False.
+        """
 
         if self.obj.rtbox_enabled : return
 
@@ -181,9 +230,20 @@ class runScripts:
             self.simutil.save_data(self.obj.OptStruct,self.simutil,self.fileLog,itr=Simulation,crash=Crash)
             self.fileLog.log('{} = {}'.format("Saving Data".ljust(self.fileLog.PADDING_WIDTH  , ' '),f"{str(self.misc.toc())} seconds.\n"))
 
-@er.hint(" hint inside Simend")
+    @er.hint(" hint inside Simend")
     def simEnd(self):
-        """ This function plots the processed results graphically in HTML files. It also creates copies of simulation files and scripts in the results folder. It resets the simulation iteration counter and generates an HTML report from the results and visualizations. Finally, it finalizes logging and saves traces of the desired scopes externally. If RT Box was enabled for this run, every file in the model's own folder (the .elf, and whatever else PLECS Coder / the A2L-INCA merge produced alongside it -- .c/.h if codegen_only, .a2l files, etc.) is copied into the results folder too, as a whole "RT_BOX_CODEGEN" subfolder -- handled by copyfiles() (called via footer() below), the same shutil.copytree() mechanism already used for the other directories it copies. """
+        """
+        This function plots the processed results graphically in HTML files.
+        It also creates copies of simulation files and scripts in the results folder.
+        It resets the simulation iteration counter and generates an HTML report from the results and visualizations.
+        Finally, it finalizes logging and saves traces of the desired scopes externally.
+
+        If RT Box was enabled for this run, every file in the model's own folder (the .elf,
+        and whatever else PLECS Coder / the A2L-INCA merge produced alongside it -- .c/.h if
+        codegen_only, .a2l files, etc.) is copied into the results folder too, as a whole
+        "RT_BOX_CODEGEN" subfolder -- handled by copyfiles() (called via footer() below), the
+        same shutil.copytree() mechanism already used for the other directories it copies.
+        """
 
         # Reset simulation iteration counter
         self.simutil.iterNumber = 0
@@ -222,9 +282,20 @@ class runScripts:
         # Save the traces of the desired scopes externally
         if not dp.scopes == [None] and not self.rt_enabled_flag and hasattr(self, 'obj') : self.obj.SaveTraces(self.JS['modelname'],dp.scopes,self.fileLog.resultfolder)
 
-@er.hint(" hint inside simMissing")
+    @er.hint(" hint inside simMissing")
     def simMissing(self, iter, threads_vector, Threads):
-        """ This function determines which simulation thread has crashed during parallel runs to repeate it later. *Args: iter (int) : current iteration where a crash occured threads_vector (list) : the used simulation threads for each simulation package Threads (int) : number of threads used in parallel simulation !Returns: MissingIter (list) : list of identified simulation iterations that crashed """
+        """
+        This function determines which simulation thread has crashed during
+        parallel runs to repeate it later.
+
+        *Args:
+            iter            (int)   : current iteration where a crash occured
+            threads_vector  (list)  : the used simulation threads for each simulation package
+            Threads         (int)   : number of threads used in parallel simulation
+
+        !Returns:
+            MissingIter     (list)  : list of identified simulation iterations that crashed
+        """
 
         # Find missing iteration data file and clean up optstruct
         MissingIter         = self.postProcessing.findMissingResults(self.fileLog.resultfolder+"/CSV_TIME_SERIES",iter,threads_vector,Threads)
@@ -236,9 +307,15 @@ class runScripts:
         MissingIter         = (np.array(MissingIter)-1).tolist()
         return MissingIter
 
-@er.hint(" hint inside log_header")
+    @er.hint(" hint inside log_header")
     def log_header(self,OptStruct,simulation=0):
-        """ Log the header part of the log file *Args: OptStruct (dict) : the current modelvars dictionary of parameters simulation (int, optional) : simulation number. Defaults to 0. """
+        """
+        Log the header part of the log file
+
+        *Args:
+            OptStruct    (dict)             : the current modelvars dictionary of parameters
+            simulation   (int, optional)    : simulation number. Defaults to 0.
+        """
 
         # If simulation number is 0 Log the default parameters and create a header for iterations.
         if not simulation:
