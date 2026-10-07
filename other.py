@@ -24,7 +24,7 @@ import  Lib.Pymisc                  as      msc
 import  Lib.py_plot                 as      plt
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def build_modelvars_from_list(modelvars_list, analysis_opts):
+def build_modelvars_from_list(modelvars_list, analysis_opts, namespace=None):
     """
     Builds ModelVars and SolverOpts containing only what Input_vars.json's "ModelVars" list sets,
     without touching the real dp.mdlVars / dp.slvOpts, plus the complete simParams, ToFile and
@@ -40,14 +40,18 @@ def build_modelvars_from_list(modelvars_list, analysis_opts):
         baseline for it), that read creates an empty {} at that path in the result. The list
         needs to be self-sufficient: every value an item reads should be set by an earlier item.
 
-        simParams and ToFile are copied from the real dp.mdlVars['Common'] as it is when this is
-        called, so call it after the list has been exec()'d for real (simInit() does that) for the
-        list's own overrides to be in them. ToFile's FileName/FileNameStandalone are whatever they
-        hold at that moment (empty unless something has set them).
+        simParams and ToFile start from a copy of the real dp.mdlVars['Common'] ones as they are
+        when this is called, and whatever the list itself set is laid over that (the list wins), so
+        the result doesn't depend on the list having been exec()'d for real first. Keys the list
+        doesn't set come from the real dict: ToFile's FileName/FileNameStandalone are empty there
+        unless something has set them.
 
     *Args:
         modelvars_list  (list[str]) : The exec() strings, e.g. self.JS['ModelVars'].
         analysis_opts   (dict)      : The AnalysisOpts dictionary from Input_vars.json, e.g. self.JS['AnalysisOpts'].
+        namespace       (dict, optional) : Extra names the list items can use, e.g. {'self': self} for items like
+                                      "self.fileLog.ResultsPath". simInit()'s own exec(item) sees `self` because it is
+                                      a local variable there; this function is module-level, so it has to be handed in.
 
     !Returns:
         tuple[dict, dict] : (mdlVars, slvOpts) as plain nested dicts -- what the list sets, plus the
@@ -67,16 +71,20 @@ def build_modelvars_from_list(modelvars_list, analysis_opts):
     # so items that read other dp attributes still work but nothing from the real mdlVars/slvOpts leaks in
     local_dp = types.SimpleNamespace(**{**vars(dp), 'mdlVars': tree(), 'slvOpts': tree()})
 
-    # run every item with local_dp standing in for dp; {**globals(), ...} keeps names like np available as in a plain exec(item)
-    for item in modelvars_list  :   exec(item, {**globals(), 'dp': local_dp})
+    # names the items can use: this module's globals (np, ...), then the caller's extras (e.g. self), then local_dp standing in for dp
+    exec_namespace  =   {**globals(), **(namespace or {}), 'dp': local_dp}
+
+    # run every item in that namespace
+    for item in modelvars_list  :   exec(item, exec_namespace)
 
     # convert the filled-in trees back to plain dicts (mdlVars first, slvOpts second)
     mdlVars, slvOpts    =   plain(local_dp.mdlVars), plain(local_dp.slvOpts)
 
-    # add the complete simParams and ToFile dictionaries from the real dp.mdlVars (deep copies, as plain dicts)
+    # add the complete simParams and ToFile dictionaries: a deep copy of the real dp.mdlVars one as the base,
+    # with whatever the list itself set laid over it (the list's values win), as plain dicts
     common              =   mdlVars.setdefault('Common', {})
-    common['simParams'] =   dict(copy.deepcopy(dp.mdlVars['Common']['simParams']))
-    common['ToFile']    =   dict(copy.deepcopy(dp.mdlVars['Common']['ToFile']))
+    common['simParams'] =   {**copy.deepcopy(dict(dp.mdlVars['Common']['simParams'])), **common.get('simParams', {})}
+    common['ToFile']    =   {**copy.deepcopy(dict(dp.mdlVars['Common']['ToFile']))   , **common.get('ToFile', {})}
 
     # add the complete AnalysisOpts dictionary, as given
     mdlVars['AnalysisOpts'] = dict(copy.deepcopy(analysis_opts))
@@ -275,7 +283,7 @@ class runScripts:
             # Any other model (DCDC_S/DCDC_D, ...): keep using OptStruct as before, since those
             # additions are legitimately part of that model's parameters.
             if dp.JSON.get("model", "") == "":
-                init_mdlVars, init_slvOpts = build_modelvars_from_list(self.JS['ModelVars'], self.JS['AnalysisOpts'])
+                init_mdlVars, init_slvOpts = build_modelvars_from_list(self.JS['ModelVars'], self.JS['AnalysisOpts'], namespace={'self': self})
             else:
                 init_mdlVars = self.obj.OptStruct[0]['ModelVars'] if (self.simutil.Threads >= 1 and dp.JSON['parallel']) else self.obj.OptStruct['ModelVars']
                 init_slvOpts = self.obj.OptStruct[0]['SolverOpts'] if (self.simutil.Threads >= 1 and dp.JSON['parallel']) else self.obj.OptStruct['SolverOpts']
@@ -348,9 +356,6 @@ class runScripts:
         self.fileLog.line_separator()
 
 #?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-#?-------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
 
 
 
