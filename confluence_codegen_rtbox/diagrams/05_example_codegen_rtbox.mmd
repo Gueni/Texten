@@ -1,8 +1,0 @@
-graph LR
-    A["Input_vars.json: RT true, codegen_only false"] --> B["main.py"]
-    B --> C["plecs.codegen"]
-    C --> D["rtbox.load: upload elf"]
-    D --> E["rtbox.start"]
-    E --> F["Optional: set values, capture data"]
-    F --> G["rtbox.stop"]
-    G --> H["results RT_BOX_CODEGEN"]
