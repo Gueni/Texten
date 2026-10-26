@@ -1,0 +1,8 @@
+graph TD
+    A{"elf exists?"} -->|No| X["Error: codegen file not found"]
+    A -->|Yes| B["rtbox.load: upload elf as base64"]
+    B --> C["rt_start: rtbox.start"]
+    C --> D["rt_list: list value and capture blocks"]
+    D --> E["rt_set: optional, write Programmable Values"]
+    E --> F["rt_get: optional, wait for trigger and read Data Capture"]
+    F --> G["rt_stop: rtbox.stop, always runs"]

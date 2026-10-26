@@ -1,0 +1,25 @@
+graph TD
+    A["main.py"] --> B["runScripts.simInit"]
+    B --> C["Read Input_vars.json: RT, codegen_only, codegen_target"]
+    C --> D["Create PlecsRPC with rtbox_enabled and rtbox_codegen_only"]
+    D --> E["modelinit_opts: optStruct, then PlecsConnect"]
+    E --> F["LoadModel"]
+    F --> G{"RT enabled?"}
+    G -->|No| H["plecs.load: normal model load"]
+    G -->|Yes| I["generate_code: plecs.codegen"]
+    I --> J{"a2l file in model folder?"}
+    J -->|Yes| K["a2l_merge_tool.generate: INCA a2l"]
+    J -->|No| L{"codegen_only?"}
+    K --> L
+    L -->|Yes| M["Skip upload"]
+    L -->|No| N["rtbox.load: upload elf to RT Box"]
+    H --> O["LaunchSim"]
+    M --> O
+    N --> O
+    O --> P{"Which mode?"}
+    P -->|Normal| Q["plecs.simulate"]
+    P -->|Codegen only| R["Return path of the elf"]
+    P -->|RT Box| S["rtbox_run: start, interact, stop"]
+    Q --> T["simEnd: save data, plots, HTML report"]
+    R --> U["simEnd: copy model and generated files to RT_BOX_CODEGEN"]
+    S --> U

@@ -1,0 +1,7 @@
+graph LR
+    A["Input_vars.json: RT true, codegen_only true"] --> B["main.py"]
+    B --> C["plecs.codegen"]
+    C --> D["elf and sources in model folder"]
+    C --> E["a2l merged for INCA, if present"]
+    D --> F["results RT_BOX_CODEGEN"]
+    E --> F
