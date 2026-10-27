@@ -1,0 +1,1 @@
+The only change in Pylog.py is that octave_sweep_script() now passes parallel to the template. Sequential mode works exactly as before.
