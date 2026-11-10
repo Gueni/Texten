@@ -8,20 +8,29 @@ plecs('warning', 'warning message');                    % Display Warnings.
 %---------------------------------------------------------------------------------------------------------------------------
 %% Model variables from the model's own Initialization Commands
 %---------------------------------------------------------------------------------------------------------------------------
-% Runs the model's Initialization Commands here (at script level -- PLECS does not allow eval() to create variables inside
-% a function), collects every variable they define into the struct init_vars__, then removes them from the workspace
-% again, so they can never clash with this script's own variables defined below (data, scopes, mdl, ...).
-vars_before__   = who;
-eval(plecs('get', plecs('get', '', 'CurrentCircuit'), 'InitializationCommands'));
-init_names__    = setdiff(who, [vars_before__(:); {'vars_before__'}]);
+% Runs the model's Initialization Commands in Octave's base workspace, collects every variable they define into the struct
+% init_vars__, then removes them from the base workspace again.
+% Why the base workspace : PLECS runs this script as a function, and sweep_callback below is a nested function of it. That
+% makes the script's own workspace "static" in Octave 4.4 -- eval() cannot create variables in it, neither here nor inside
+% a function (error: can not add variable "..." to a static workspace). The base workspace does not have that limit, and
+% the model variables can never clash there with this script's own variables (data, scopes, mdl, ...).
+init_cmds__     = plecs('get', plecs('get', '', 'CurrentCircuit'), 'InitializationCommands');
+base_before__   = evalin('base', 'who');
 init_vars__     = struct();
-for k__ = 1:numel(init_names__)
-    init_vars__.(init_names__{k__}) = eval(init_names__{k__});
-end
-if ~isempty(init_names__)
-    clear(init_names__{:});
-end
-clear vars_before__ init_names__ k__
+unwind_protect
+    evalin('base', init_cmds__);
+    init_names__ = setdiff(evalin('base', 'who'), base_before__);
+    for k__ = 1:numel(init_names__)
+        init_vars__.(init_names__{k__}) = evalin('base', init_names__{k__});
+    end
+unwind_protect_cleanup
+    % Always leave the base workspace as it was, also when the Initialization Commands fail
+    init_names__ = setdiff(evalin('base', 'who'), base_before__);
+    if ~isempty(init_names__)
+        evalin('base', ['clear ' strjoin(init_names__(:)', ' ')]);
+    end
+end_unwind_protect
+clear init_cmds__ base_before__ init_names__ k__
 
 %---------------------------------------------------------------------------------------------------------------------------
 %% Configuration
