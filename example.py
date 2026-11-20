@@ -17,9 +17,9 @@ OUTPUT      = os.path.join(HERE, "archive", "output")
 if __name__ == "__main__":
 
     # Standalone copy (links broken)
-    copy    = Standalone(MODEL, LIBRARY).save(os.path.join(OUTPUT, "psfbConverterFBR_standalone.plecs"))
-    print("standalone copy : %s" % copy)
+    # copy    = Standalone(MODEL, LIBRARY).save(os.path.join(OUTPUT, "psfbConverterFBR_standalone.plecs"))
+    # print("standalone copy : %s" % copy)
 
-    # Signal names of the To File columns
-    names   = SignalNames(MODEL, LIBRARY, VARIABLES).names()
-    for i, name in enumerate(names, 1) :   print("%4d  %s" % (i, name))
+    # Names of the real (enabled) To File signals : {column number in the exported file : name}
+    columns = SignalNames(MODEL, LIBRARY, VARIABLES).columns()
+    for col, name in columns.items()  :   print("%4d  %s" % (col, name))

@@ -669,6 +669,11 @@ def clean_names(elements, unique=False):
         for same in collisions(idx) :   number(same)
     return names
 
+def _is_placeholder(e):
+    """ The element only carries a constant standing for a disabled part of the model. """
+    if e.note.startswith("constant placeholder")    :   return True
+    return not e.chain and "placeholder" in display_name(path_leaf(e.component)).lower()
+
 class SignalNames:
     """
     Names of the signals reaching the sinks of a model.
@@ -683,9 +688,13 @@ class SignalNames:
         unique         (bool)               : names unique over each sink input.
 
     Use:
-        names = SignalNames(model, library, variables).names()              # [name of column 1, name of column 2, ...]
-        table = SignalNames(model, library, variables).signals              # {sink : {input : [details per signal]}}
+        names   = SignalNames(model, library, variables).names()                        # every column, in order
+        enabled = SignalNames(model, library, variables).names(placeholders=False)      # only the real (enabled) signals
+        columns = SignalNames(model, library, variables).columns()                      # {column number : name} of the real signals
         SignalNames(model, library, variables).save(json_path)
+
+    A placeholder is a column that only carries a constant : the part of the model it stands for is disabled in the active
+    configuration (e.g. a 'Disable' / 'Pass' configuration), PLECS exports a constant there to keep the column count.
     """
 
     def __init__(self, model, libraries=None, variables=None, configurations=None, sinks=("ToFile",), sink=None, unique=True):
@@ -699,19 +708,28 @@ class SignalNames:
             self.signals[path] = {}
             for term, elems in tracer.trace_inputs(sheet, name):
                 names = clean_names(elems, unique)
-                self.signals[path][term] = [dict(e.as_dict(), name=n, index=k + 1) for k, (e, n) in enumerate(zip(elems, names))]
+                self.signals[path][term] = [dict(e.as_dict(), name=n, index=k + 1, placeholder=_is_placeholder(e))
+                                            for k, (e, n) in enumerate(zip(elems, names))]
         self.warnings = tracer.warnings
 
-    def names(self, sink=None, terminal=None):
+    def names(self, sink=None, terminal=None, placeholders=True):
         """ Names of the signals of one sink input (default : first sink, first input), in column order. """
-        return [s["name"] for s in self.table(sink, terminal)]
+        return [s["name"] for s in self.table(sink, terminal, placeholders)]
 
-    def table(self, sink=None, terminal=None):
-        """ Signal dicts (name, category, component, signal, note, ...) of one sink input, in column order. """
+    def columns(self, sink=None, terminal=None, placeholders=False):
+        """
+        {column number : name}. Column numbers are those of the exported file : 0 is the time, the signals start at 1, so
+        a csv can be reduced to the real signals with  df.iloc[:, [0] + list(columns)].
+        """
+        return {s["index"]: s["name"] for s in self.table(sink, terminal, placeholders)}
+
+    def table(self, sink=None, terminal=None, placeholders=True):
+        """ Signal dicts (name, index, category, component, signal, placeholder, note, ...) of one sink input, in column order. """
         if not self.signals :   return []
         terms = self.signals[sink] if sink is not None else next(iter(self.signals.values()))
         if not terms        :   return []
-        return terms[terminal] if terminal is not None else next(iter(terms.values()))
+        rows  = terms[terminal] if terminal is not None else next(iter(terms.values()))
+        return rows if placeholders else [s for s in rows if not s["placeholder"]]
 
     def save(self, path):
         """ Write every signal and the warnings to a json file. Returns the path. """
