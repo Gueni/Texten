@@ -1,0 +1,100 @@
+    def InitializationCommands(self, input_file, output_file, modelvars, m_file, mapvars, solveropts):
+        """
+        Builds ONE final model file (output_file) by doing, in order:
+          1. Standalone copy of input_file with all library links broken
+          2. Inject modelvars into InitializationCommands "" of that same file
+          3. Write the .m file (struct definitions + flattened modelvars)
+          4. (parallel only) Generate the Octave sweep script and inject it
+             into that same file
+
+        Args:
+            input_file  (str)  : Path to the original PLECS model.
+            output_file (str)  : Path of the final .plecs file (a FILE path, not a folder).
+            modelvars   (dict) : ModelVars dictionary.
+            m_file      (str)  : Path of the .m file to write.
+            mapvars     (dict) : Mapping variables for the sweep script.
+            solveropts  (dict) : SolverOpts dictionary.
+        """
+
+        # ------------------------------------------------------------------
+        # 1. Standalone copy + break library links  ->  output_file
+        # ------------------------------------------------------------------
+        # save() needs a FILE path. Passing a folder gives PermissionError [Errno 13].
+        os.makedirs(os.path.dirname(os.path.abspath(output_file)), exist_ok=True)
+        standalone_model = Standalone(input_file, dp.CustomLibraries).save(output_file)
+        # From here on, EVERYTHING is applied to this one file.
+
+        # ------------------------------------------------------------------
+        # 2. Flatten modelvars, e.g. {'a': {'b': 1}} -> "a.b=1;"
+        # ------------------------------------------------------------------
+        flattened_dict    = flatdict.FlatDict(modelvars, delimiter='.')
+        flattened_str_dot = '\n'.join(
+            f"{key}={value};" if not isinstance(value, str) else f"{key}='{value}';"
+            for key, value in flattened_dict.items()
+        )
+
+        # ------------------------------------------------------------------
+        # 3. Generate Octave sweep code (parallel only)
+        # ------------------------------------------------------------------
+        if dp.JSON['parallel']:
+            octave_code = self.octave_sweep_script(
+                mapvars,
+                dp.JSON['sweepNames'],
+                self.octave_sweep_mapping(
+                    os.path.join(os.getcwd(), "Script", dp.ScriptBody_path).replace("\\", "/")
+                ),
+                modelvars,
+                dp.scopes,
+                solveropts,
+                model_dir=os.path.dirname(standalone_model),
+            )
+            # Write the generated Octave script code to a file
+            with open(f'{self.scriptbody_folder}/ScriptBody_{self.utc}.m', 'w') as f:
+                f.write(octave_code)
+
+        # ------------------------------------------------------------------
+        # 4. Inject modelvars into InitializationCommands of the standalone file
+        # ------------------------------------------------------------------
+        # Read the whole file FIRST. Opening the same file with 'w' while reading it
+        # truncates it to 0 bytes -> empty model -> "solver parameter not found in model".
+        with open(standalone_model, 'r', encoding='utf-8', newline='') as infile:
+            lines = infile.readlines()
+
+        with open(standalone_model, 'w', encoding='utf-8', newline='') as outfile:
+            for line in lines:
+                match = re.search(r'InitializationCommands "(.*?)"', line)
+                if match:
+                    existing_content = match.group(1)
+                    if existing_content.strip():
+                        combined = existing_content + "  \n" + flattened_str_dot
+                    else:
+                        combined = flattened_str_dot
+                    prefix       = line[:match.start(1)]
+                    updated_line = prefix + combined + '"\n'
+                    outfile.write(updated_line)
+                else:
+                    outfile.write(line)
+
+        # ------------------------------------------------------------------
+        # 5. Write the .m file (struct definitions + flattened modelvars)
+        # ------------------------------------------------------------------
+        os.makedirs(os.path.dirname(m_file), exist_ok=True)
+        with open(m_file, 'w', encoding='utf-8') as m_out:
+            if self.model_vars_names:
+                for name in self.model_vars_names:
+                    m_out.write(f"{name} = struct();\n")
+                m_out.write("\n")
+            m_out.write(flattened_str_dot)
+
+        # ------------------------------------------------------------------
+        # 6. Inject the Octave script into the SAME standalone file
+        # ------------------------------------------------------------------
+        if dp.JSON['parallel']:
+            self.inject_octave(
+                plecs_file_path  = standalone_model,
+                output_file_path = standalone_model,
+                m_file_path      = f'{self.scriptbody_folder}/ScriptBody_{self.utc}.m',
+                solveropts       = solveropts,
+            )
+
+        return standalone_model
